@@ -10,9 +10,9 @@ Maintainer: Mathieu Basille <basille@ase-research.org>
 Depends:
     R (>= 3.0.2),
     adehabitatLT,
-    adehabitatHR,
-    tkrplot
+    adehabitatHR
 Suggests:
-    survival
+    survival,
+    tkrplot
 License: GPL (>= 3)
 URL: http://ase-research.org/basille/hab

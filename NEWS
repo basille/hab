@@ -1,5 +1,11 @@
+BUG FIX
+
+* `plot.ltraj` + `ld`: Changed id() to adehabitatLT::id() to avoid
+  ambiguity
+
+
 hab 1.11
-==========
+========
 
 NEW FEATURE
 
