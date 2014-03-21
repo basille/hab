@@ -1586,7 +1586,10 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     ## End of modification
     if (is.null(xlim)) {
         if (perani) {
-            idtt <- unique(id(x))
+            ## Note the use of 'adehabitatLT::' to ensure the use of the
+            ## 'id' function from this package, and avoid conflicts
+            ## (e.g. with 'plyr::id')
+            idtt <- unique(adehabitatLT::id(x))
             oo <- lapply(idtt, function(i) unlist(lapply(x[id = i],
                 function(j) j$x)))
             ## If center, 'xlim' centered around the range of x
@@ -1630,7 +1633,10 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     }
     if (is.null(ylim)) {
         if (perani) {
-            idtt <- unique(id(x))
+            ## Note the use of 'adehabitatLT::' to ensure the use of the
+            ## 'id' function from this package, and avoid conflicts
+            ## (e.g. with 'plyr::id')
+            idtt <- unique(adehabitatLT::id(x))
             oo <- lapply(idtt, function(i) unlist(lapply(x[id = i],
                 function(j) j$y)))
             ## If center, 'ylim' centered around the range of y
