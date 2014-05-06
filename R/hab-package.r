@@ -689,7 +689,7 @@ kernelUD <- function (xy, h = "href", grid = 60, same4all = FALSE, hlim = c(0.1,
 }
 
 
-## kfoldSSF
+## kfold
 ##
 ##' Cross-validation for regression models.
 ##'
