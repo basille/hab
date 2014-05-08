@@ -1,0 +1,58 @@
+\name{lincircor}
+\alias{lincircor}
+\alias{lincircor.test}
+\title{Linear-circular correlation}
+\usage{
+lincircor(xl, theta)
+
+lincircor.test(xl, theta)
+}
+\arguments{
+  \item{xl}{A numeric, providing the linear variable.}
+
+  \item{theta}{A numeric, providing the circular variable,
+  in radians (\code{rad = deg * pi / 180}).}
+}
+\value{
+\code{lincircor} returns a numeric providing the
+linear-circular correlation. \code{lincircor.test} returns
+a list with class \code{"htest"} containing the following
+components: \itemize{ \item \code{statistic}: the value of
+the test statistic \item \code{parameter}: the degrees of
+freedom of the test statistic, which follows a F
+distribution if \code{x}, and \code{theta} are independent
+and \code{x} is normally distributed \item \code{p.value}:
+the p-value of the test \item \code{estimate}: the
+estimated measure of linear-circular correlation \item
+\code{null.value}: the value of the correlation measure
+under the null hypothesis, always \code{0} \item
+\code{alternative}: a character string describing the
+alternative hypothesis \item \code{method}: a character
+string indicating how the correlation was measured \item
+\code{data.name}: a character string giving the names of
+the data}
+}
+\description{
+Compute Linear-circular correlation, and test it.
+}
+\examples{
+## From Mardia & Jupp (2000), p.246
+xl <- c(28, 85.2, 80.5, 4.7, 45.9, 12.7, 72.5, 56.6, 31.5, 112,
+    20, 72.5, 16, 45.9, 32.6, 56.6, 52.6, 91.8, 55.2)
+theta <- c(327, 91, 88, 305, 344, 270, 67, 21, 281, 8, 204, 86,
+    333, 18, 57, 6, 11, 27, 84)
+## 'xl' is not in radians (but the test is computed anyway)
+lincircor(xl, theta)
+## Conversion to radians
+lincircor(xl, theta*pi/180)
+## Test
+lincircor.test(xl, theta*pi/180)
+}
+\author{
+Mathieu Basille \email{basille@ase-research.org}
+}
+\references{
+Mardia, K. V. & Jupp, P. E. (2000) Directional statistics.
+Wiley, 429 pp.
+}
+

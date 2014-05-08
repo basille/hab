@@ -1,0 +1,41 @@
+\name{acf.test}
+\alias{acf.test}
+\title{Test of autocorrelation in SSFs}
+\usage{
+acf.test(residuals, id, type = c("correlation", "covariance", "partial"),
+  ci = 0.95)
+}
+\arguments{
+  \item{residuals}{A vector of residuals on which to
+  compute the ACF. The residuals must be sorted
+  chronologically.}
+
+  \item{id}{A vector of corresponding animal IDs.}
+
+  \item{type}{A character string giving the type of ACF to
+  be computed.  Allowed values are \code{correlation}
+  (default), \code{covariance} or \code{partial}.}
+
+  \item{ci}{A numeric giving the confidence interval to be
+  used to test the ACF.}
+}
+\value{
+A list, with the following parameters: \itemize{ \item
+\code{acfk}: a list with the individual autocorrelation
+functions \item \code{threshold}: a vector with individual
+thresholds \item \code{lag}: a vector with the resulting
+individual lags}
+}
+\description{
+Test of autocorrelation and partial autocorrelation in SSF
+models, based on the estimation of autocorrelation
+functions (ACF).
+}
+\author{
+Mathieu Basille \email{basille@ase-research.org}
+}
+\seealso{
+See \code{\link[stats]{acf}} for further details on the
+ACF.
+}
+

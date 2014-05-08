@@ -1,0 +1,61 @@
+\name{kerneloverlap}
+\alias{kerneloverlap}
+\alias{summary.kerneloverlap}
+\title{Spatial Interaction between Animals Monitored Using Radio-Tracking}
+\usage{
+kerneloverlap(x, method = c("HR", "PHR", "VI", "BA", "UDOI", "HD"),
+  percent = 95, conditional = FALSE, ...)
+
+summary.kerneloverlap(object, ...)
+}
+\arguments{
+  \item{x}{an object of class \code{SpatialPointsDataFrame}
+  containing only one column (which is a factor indicating
+  the identity associated to the relocations) or an object
+  of class \code{estUDm} containing several home-ranges for
+  which the overlap is to be calculated}
+
+  \item{method}{the desired method(s)for the estimation of
+  overlap (several methods can be chosen, defaults to all
+  at once)}
+
+  \item{object}{An array or matrix of class
+  \code{kerneloverlap}}
+}
+\value{
+An array of class \code{kerneloverlap} with as many
+matrices as chosen methods (if only one method is chosen, a
+matrix of class \code{kerneloverlap}); each matrix gives
+the value of indices of overlap for all pairs of animals.
+}
+\description{
+Modified version of
+\code{\link[adehabitatHR]{kerneloverlap}}, which now allows
+to select several methods at once, and works on
+\code{SpatialPointsDataFrame} or \code{estUDm} in the same
+function.
+}
+\examples{
+## Prepare the data:
+data(puechabonsp)
+loc <- puechabonsp$relocs
+elev <- puechabonsp$map
+
+## Kernel overlap using various approaches:
+kerneloverlap(puechabonsp$relocs[,1], grid = 200, meth = "HR", conditional = TRUE)
+kerneloverlap(puechabonsp$relocs[,1], grid = elev, meth = c("HR", "VI"), conditional = TRUE)
+kerneloverlap(puechabonsp$relocs[,1], grid = 200, conditional = TRUE)
+
+## Summarizing the results:
+summary(kerneloverlap(puechabonsp$relocs[,1], grid = 200))
+summary(kerneloverlap(puechabonsp$relocs[,1], grid = 200, percent = 50))
+}
+\author{
+Modified by Mathieu Basille
+\email{basille@ase-research.org}
+}
+\seealso{
+See \code{\link[adehabitatHR]{kerneloverlap}} for further
+details on the function and all available arguments.
+}
+
