@@ -1,0 +1,68 @@
+\name{ltraj2spdf}
+\alias{ltraj2sldf}
+\alias{ltraj2spdf}
+\title{Conversion of the class \code{ltraj} to the package \code{sp}}
+\usage{
+ltraj2spdf(ltr, strict = TRUE, proj4string = CRS(as.character(NA)))
+
+ltraj2sldf(ltr, by = c("burst", "id", "step"), strict = TRUE,
+  proj4string = CRS(as.character(NA)))
+}
+\arguments{
+  \item{strict}{Logical (\code{TRUE} by default). See
+  \code{ld}. For \code{ltraj2sldf}, only applies to
+  \code{by = "step"}.}
+
+  \item{proj4string}{A valid proj4 string (see
+  \code{\link[sp]{proj4string}} for more details).}
+
+  \item{by}{Sets the level of aggregation: if \code{id},
+  one object of class \code{Lines} corresponds to one
+  animal; if \code{burst} (default), it corresponds to one
+  burst; if \code{step}, it corresponds to one step.}
+}
+\description{
+\code{ltraj2spdf}: Add a \code{proj4string} parameter, and
+keeps \code{id} and \code{burst}. \code{ltraj2sldf}: Add a
+\code{proj4string} parameter, and \code{by} is now a
+character, which accepts \code{"id"}, \code{"burst"}
+(default) and \code{"step"}. Warning: the conversion to
+SLDF using \code{by = "step"} is significantly longer, of a
+factor of ~50, than the other two (it takes about 10 sec
+for each 10,000 steps on a relatively recent computer).
+}
+\examples{
+## Load puechcirc data, and add some random infolocs:
+data(puechcirc)
+info <- list(data.frame(A = rnorm(80), B = runif(80), C = rpois(80,
+    1)), data.frame(A = rnorm(69, 10), B = runif(69, 10, 11),
+    C = rpois(69, 10)), data.frame(A = rnorm(66, -10), B = runif(66,
+    -10, -9), C = rpois(66, 100)))
+## Watch the row names:
+info <- mapply(function(x, y) {
+    row.names(x) <- row.names(y)
+    return(x)
+}, info, puechcirc, SIMPLIFY = FALSE)
+infolocs(puechcirc) <- info
+
+## Conversion to SPDF:
+summary(adehabitatLT:::ltraj2spdf(puechcirc))
+summary(ltraj2spdf(puechcirc, strict = FALSE))
+summary(ltraj2spdf(puechcirc, strict = FALSE, proj4string = CRS("+init=epsg:27572")))
+
+## Conversion to SLDF:
+summary(adehabitatLT:::ltraj2sldf(puechcirc, byid = TRUE))
+summary(ltraj2sldf(puechcirc, by = "id"))
+summary(ltraj2sldf(puechcirc, proj4string = CRS("+init=epsg:27572")))
+summary(ltraj2sldf(puechcirc, strict = FALSE, by = "step",
+    proj4string = CRS("+init=epsg:27572")))
+}
+\author{
+Modified by Mathieu Basille
+\email{basille@ase-research.org}
+}
+\seealso{
+See \code{\link[adehabitatLT]{ltraj2spdf}} for further
+details on the function and all available arguments.
+}
+

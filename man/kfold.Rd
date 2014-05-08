@@ -1,0 +1,50 @@
+\name{kfold}
+\alias{kfold}
+\title{kfold}
+\usage{
+kfold(mod, k = 5, nrepet = 100, jitter = FALSE, reproducible = TRUE,
+  details = FALSE)
+}
+\arguments{
+  \item{mod}{A fitted model for which there exists a
+  \code{kfold} method (currently \code{coxph} and
+  \code{clogit} models).}
+
+  \item{k}{The number of equal size subsamples of the
+  partition.}
+
+  \item{nrepet}{The number of repetitions.}
+
+  \item{jitter}{Logical, whether to add some random noise
+  to the predictions (useful when the model is fitted on
+  categorical variables, which can produces error in the
+  ranking process).}
+
+  \item{reproducible}{Logical, whether to use a fixed seed
+  for each repetition.}
+
+  \item{details}{Logical, whether to return details of each
+  repetition (useful for debugging).}
+}
+\value{
+A data frame with the correlations (\code{cor}) and the
+type of value (\code{type}).
+}
+\description{
+Cross-validation for regression models.
+}
+\details{
+Note: needs complete names in the coxph/clogit call, and
+not 'cos(var)' or 'I(var*10)', except for 'strata()' and
+'cluster()'.
+
+Also needs complete case in the model (e.g. it fails if
+there is at least one NA in the observed steps for any
+variable of the model). Returns an error if some stratas
+have no case.
+}
+\author{
+Mathieu Basille \email{basille@ase-research.org}, with the
+help of Terry Therneau and Guillaume Bastille-Rousseau
+}
+

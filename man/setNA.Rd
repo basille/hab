@@ -1,0 +1,23 @@
+\name{setNA}
+\alias{setNA}
+\title{Place Missing Values in Objects of Class \code{ltraj}}
+\usage{
+setNA(ltraj, date.ref, dt, tol = dt/10, units = c("sec", "min", "hour",
+  "day"), ...)
+}
+\description{
+The function does not allow a numeric for \code{date.ref}
+anymore. In addition, a warning is issued if the length of
+\code{date.ref} is not 1 or the length of the \code{ltraj}
+object. See \code{\link[adehabitatLT]{setNA}} for further
+details on the function and all available arguments.
+}
+\author{
+Modified by Mathieu Basille
+\email{basille@ase-research.org}
+}
+\seealso{
+See \code{\link[adehabitatLT]{setNA}} for further details
+on the function and all available arguments.
+}
+

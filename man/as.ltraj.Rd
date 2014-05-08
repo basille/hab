@@ -1,0 +1,32 @@
+\name{as.ltraj}
+\alias{as.ltraj}
+\title{Working with Trajectories in 2D Space: the Class ltraj}
+\usage{
+as.ltraj(xy, date = NULL, id, burst = id, typeII = TRUE,
+  slsp = c("remove", "missing"), infolocs = data.frame(pkey = paste(id,
+  date, sep = ".")))
+}
+\description{
+Faster version of \code{\link[adehabitatLT]{as.ltraj}},
+which can be up to 5-10 times faster.
+}
+\examples{
+data(puechabonsp)
+locs <- puechabonsp$relocs
+xy <- coordinates(locs)
+df <- as.data.frame(locs)
+id <- df[,1]
+da <- as.POSIXct(strptime(as.character(df$Date), "\%y\%m\%d"))
+ltr1 <- adehabitatLT:::as.ltraj(xy, da, id = id)
+ltr2 <- as.ltraj(xy, da, id = id)
+all.equal(ltr1, ltr2)
+}
+\author{
+Modified by Mathieu Basille
+\email{basille@ase-research.org}
+}
+\seealso{
+See \code{\link[adehabitatLT]{ld}} for further details on
+the function and all available arguments.
+}
+
