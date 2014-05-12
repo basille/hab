@@ -30,75 +30,6 @@
 kfold <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     reproducible = TRUE, details = FALSE)
     UseMethod("kfold")
-## kfold.glm <- function(mod, k = 5, nrepet = 100, nbins = 10, jitter = FALSE,
-##     random = TRUE, reproducible = TRUE)
-## {
-## kfold.mer <- function(mod, k = 5, nrepet = 100, nbins = 10, jitter = FALSE,
-##     random = TRUE, reproducible = TRUE)
-## {
-##     if (!inherits(mod, c("glm", "mer")))
-##         stop("Model of class '(g)lm' or '(g)lmer' expected")
-##     if (inherits(mod, c("mer")))
-##         require(lme4)
-##     dt <- model.frame(mod)
-##     ## dt <- mod$data
-##     kfold <- rd <- numeric(length = nrepet)
-##     resp <- as.character(attr(terms(mod), "variables"))[attr(terms(mod),
-##         "response") + 1]
-##     ## resp <- all.vars(terms(mod))[attr(terms(mod), "response")]
-##     for (i in 1:nrepet) {
-##         dt$sets <- "train"
-##         if(reproducible)
-##             set.seed(i)
-##         dt$sets[sample(which(dt[, resp] == 1), sum(dt[, resp] ==
-##             1)/k)] <- "test"
-##         reg <- update(mod, data = subset(dt, sets == "train"))
-##         if (inherits(mod, "glm"))
-##             ## predall <- exp(predict(reg, newdata = dt)) ## does the same
-##             predall <- exp(as.numeric(model.matrix(terms(reg),
-##                 dt) %*% coef(reg)))
-##         else if (inherits(mod, "mer"))
-##             predall <- exp(as.numeric(model.matrix(terms(reg),
-##                 dt) %*% lme4::fixef(reg)))
-##         if (jitter) {
-##             if(reproducible)
-##                 set.seed(i)
-##             predall <- jitter(predall)
-##         }
-##         quant <- quantile(predall[dt[, resp] == 0], probs = seq(from = 0,
-##             to = 1, length.out = nbins + 1))
-##         quant[1] <- 0
-##         quant[length(quant)] <- Inf
-##         int <- factor(findInterval(predall[dt$sets == "test"],
-##             quant), levels = 1:nbins)
-##         kfold[i] <- cor(1:nbins, table(int), method = "spearman")
-##         if (random) {
-##             if (reproducible)
-##                 set.seed(i)
-##             dt$sets[sample(which(dt[, resp] == 0), sum(dt[, resp] ==
-##                 1)/k)] <- "rd"
-##             int <- factor(findInterval(predall[dt$sets == "rd"],
-##                 quant), levels = 1:nbins)
-##             rd[i] <- cor(1:nbins, table(int), method = "spearman")
-##         }
-##     }
-##     if (random)
-##         return(data.frame(kfold = c(kfold, rd), type = rep(c("obs",
-##             "rand"), each = nrepet)))
-##     else return(kfold)
-## }
-##
-## debug(kfoldRSF)
-## (bli <- kfoldRSF(reg1, k = 4, nrepet = 4, jitter = TRUE))
-## (bla <- kfoldRSF(reg1, k = 4, nrepet = 4, random = TRUE))
-## by(bla$kfold, bla$type, summary)
-## t.test(bla$kfold ~ bla$type)
-## boxplot(bla$kfold ~ bla$type)
-## abline(h = 0)
-##
-## Error with dummy variables (use 'jitter = TRUE'):
-## Error in findInterval(predall[dt$sets == "test"], quant) :
-##   'vec' must be sorted non-decreasingly
 kfold.coxph <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     reproducible = TRUE, details = FALSE)
 {
@@ -214,19 +145,3 @@ kfold.coxph <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     ## Return the result data frame
     return(res)
 }
-## kfold.coxme <- function(mod) {
-##     ## else if (inherits(mod, "coxme"))
-##     ##     predall <- exp(as.numeric(model.matrix(terms(reg),
-##     ##         dt) %*% coxme::fixef(reg)))
-## }
-##
-## debug(kfoldSSF)
-## (bla <- kfoldSSF(mod, k = 4, nrepet = 4))
-## by(bla$kfold, bla$type, summary)
-## by(bla$kfold, bla$type, sd)
-## t.test(bla$kfold ~ bla$type)
-## boxplot(bla$kfold ~ bla$type, names = c("Observed", "Random"), main = "K-fold cross-validation", ylab = "Spearman correlation")
-## abline(h = 0)
-##
-## survival:::predict.coxph
-## Pour le subset : https://stat.ethz.ch/pipermail/r-help/2011-December/298434.html
