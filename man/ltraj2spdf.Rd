@@ -1,25 +1,25 @@
-\name{ltraj2spdf}
+\name{ltraj2sldf}
 \alias{ltraj2sldf}
 \alias{ltraj2spdf}
 \title{Conversion of the class \code{ltraj} to the package \code{sp}}
 \usage{
-ltraj2spdf(ltr, strict = TRUE, proj4string = CRS(as.character(NA)))
-
 ltraj2sldf(ltr, by = c("burst", "id", "step"), strict = TRUE,
   proj4string = CRS(as.character(NA)))
+
+ltraj2spdf(ltr, strict = TRUE, proj4string = CRS(as.character(NA)))
 }
 \arguments{
+  \item{by}{Sets the level of aggregation: if \code{id},
+  one object of class \code{Lines} corresponds to one
+  animal; if \code{burst} (default), it corresponds to one
+  burst; if \code{step}, it corresponds to one step.}
+
   \item{strict}{Logical (\code{TRUE} by default). See
   \code{ld}. For \code{ltraj2sldf}, only applies to
   \code{by = "step"}.}
 
   \item{proj4string}{A valid proj4 string (see
   \code{\link[sp]{proj4string}} for more details).}
-
-  \item{by}{Sets the level of aggregation: if \code{id},
-  one object of class \code{Lines} corresponds to one
-  animal; if \code{burst} (default), it corresponds to one
-  burst; if \code{step}, it corresponds to one step.}
 }
 \description{
 \code{ltraj2spdf}: Add a \code{proj4string} parameter, and

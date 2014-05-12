@@ -1,6 +1,6 @@
 Package: hab
-Version: 1.11
-Date: 2014-02-25
+Version: 1.12
+Date: 2014-05-12
 Title: Habitat and movement functions
 Description: A set of functions related to habitat selection and movement
     analyses. Also includes a few patches for functions from the adehabitatXY
