@@ -63,6 +63,7 @@
 ##'         border = grey(.5)))
 plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     which = "id"))), burst = unlist(lapply(x, attr, which = "burst")),
+    na.rm = TRUE,
     spixdf = NULL, spoldf = NULL, spotdf = NULL, xlim = NULL,
     ylim = NULL, center = FALSE, addpoints = TRUE, addlines = TRUE,
     perani = TRUE, final = TRUE, mfrow, ppar = list(pch = 21,
@@ -88,16 +89,19 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
         stop("x should be an object of class ltraj")
     x <- x[id = id]
     x <- x[burst = burst]
-    typeII <- attr(x, "typeII")
-    x <- lapply(x, function(i) {
-        jj <- i[!is.na(i$x), ]
-        attr(jj, "id") <- attr(i, "id")
-        attr(jj, "burst") <- attr(i, "burst")
-        return(jj)
-    })
-    class(x) <- c("ltraj", "list")
-    attr(x, "typeII") <- typeII
-    attr(x, "regular") <- is.regular(x)
+    ## na.rm = TRUE/FALSE
+    if (na.rm == TRUE) {
+        typeII <- attr(x, "typeII")
+        x <- lapply(x, function(i) {
+            jj <- i[!is.na(i$x), ]
+            attr(jj, "id") <- attr(i, "id")
+            attr(jj, "burst") <- attr(i, "burst")
+            return(jj)
+        })
+        class(x) <- c("ltraj", "list")
+        attr(x, "typeII") <- typeII
+        attr(x, "regular") <- is.regular(x)
+    }
     uu <- lapply(x, function(i) {
         i[, c("x", "y")]
     })
@@ -141,14 +145,16 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ## xlim <- lapply(oo, function(ki) c(min(ki), min(ki) +
             ##     maxxl))
             if (center) {
-                maxxl <- max(unlist(lapply(oo, function(kk) diff(range(kk)))))
-                xlim <- lapply(oo, function(ki) c(min(ki) - (maxxl -
-                    diff(range(ki)))/2, max(ki) + (maxxl -
-                    diff(range(ki)))/2))
+                ## Allows for NAs
+                maxxl <- max(unlist(lapply(oo, function(kk) diff(range(kk, na.rm = TRUE)))))
+                xlim <- lapply(oo, function(ki) c(min(ki, na.rm = TRUE) - (maxxl -
+                    diff(range(ki, na.rm = TRUE)))/2, max(ki, na.rm = TRUE) + (maxxl -
+                    diff(range(ki, na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else {
-                xrange <- range(unlist(oo))
+                ## Allows for NAs
+                xrange <- range(unlist(oo), na.rm = TRUE)
                 xlim <- lapply(oo, function(i) xrange)
             }
             ## End of modification
@@ -159,14 +165,16 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ## xlim <- lapply(x, function(ki) c(min(ki$x), min(ki$x) +
             ##     maxxl))
             if (center) {
-                maxxl <- max(unlist(lapply(x, function(ki) diff(range(ki$x)))))
-                xlim <- lapply(x, function(ki) c(min(ki$x) - (maxxl -
-                    diff(range(ki$x)))/2, max(ki$x) + (maxxl -
-                    diff(range(ki$x)))/2))
+                ## Allows for NAs
+                maxxl <- max(unlist(lapply(x, function(ki) diff(range(ki$x, na.rm = TRUE)))))
+                xlim <- lapply(x, function(ki) c(min(ki$x, na.rm = TRUE) - (maxxl -
+                    diff(range(ki$x, na.rm = TRUE)))/2, max(ki$x, na.rm = TRUE) + (maxxl -
+                    diff(range(ki$x, na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else {
-                xrange <- range(unlist(lapply(x, function(i) i$x)))
+                ## Allows for NAs
+                xrange <- range(unlist(lapply(x, function(i) i$x)), na.rm = TRUE)
                 xlim <- lapply(x, function(i) xrange)
             }
             ## End of modification
@@ -188,14 +196,16 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ## ylim <- lapply(oo, function(ki) c(min(ki), min(ki) +
             ##     maxyl))
             if (center) {
-                maxyl <- max(unlist(lapply(oo, function(kk) diff(range(kk)))))
-                ylim <- lapply(oo, function(ki) c(min(ki) - (maxyl -
-                    diff(range(ki)))/2, max(ki) + (maxyl -
-                    diff(range(ki)))/2))
+                ## Allows for NAs
+                maxyl <- max(unlist(lapply(oo, function(kk) diff(range(kk, na.rm = TRUE)))))
+                ylim <- lapply(oo, function(ki) c(min(ki, na.rm = TRUE) - (maxyl -
+                    diff(range(ki, na.rm = TRUE)))/2, max(ki, na.rm = TRUE) + (maxyl -
+                    diff(range(ki, na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else  {
-                yrange <- range(unlist(oo))
+                ## Allows for NAs
+                yrange <- range(unlist(oo), na.rm = TRUE)
                 ylim <- lapply(oo, function(i) yrange)
             }
             ## End of modification
@@ -206,14 +216,16 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ## ylim <- lapply(x, function(ki) c(min(ki$y), min(ki$y) +
             ##     maxyl))
             if (center) {
-                maxyl <- max(unlist(lapply(x, function(ki) diff(range(ki$y)))))
-                ylim <- lapply(x, function(ki) c(min(ki$y) - (maxyl -
-                    diff(range(ki$y)))/2, max(ki$y) + (maxyl -
-                    diff(range(ki$y)))/2))
+                ## Allows for NAs
+                maxyl <- max(unlist(lapply(x, function(ki) diff(range(ki$y, na.rm = TRUE)))))
+                ylim <- lapply(x, function(ki) c(min(ki$y, na.rm = TRUE) - (maxyl -
+                    diff(range(ki$y, na.rm = TRUE)))/2, max(ki$y, na.rm = TRUE) + (maxyl -
+                    diff(range(ki$y, na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else {
-                yrange <- range(unlist(lapply(x, function(i) i$y)))
+                ## Allows for NAs
+                yrange <- range(unlist(lapply(x, function(i) i$y)), na.rm = TRUE)
                 ylim <- lapply(x, function(i) yrange)
             }
             ## End of modification
@@ -344,3 +356,31 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     if (length(id) > 1)
         par(opar)
 }
+
+library(hab)
+data(puechcirc)
+
+adehabitatLT::plot.ltraj(puechcirc)
+plot(puechcirc, na.rm = FALSE)
+
+bla <- puechcirc[1]
+
+debug(plot.ltraj)
+undebug(plot.ltraj)
+
+adehabitatLT::plot.ltraj(bla)
+plot(bla)
+plot(bla, center = TRUE)
+plot(bla, perani = FALSE)
+plot(bla, na.rm = FALSE)
+plot(bla, center = TRUE, na.rm = FALSE)
+plot(bla, perani = FALSE, na.rm = FALSE)
+plot(bla, center = TRUE, perani = FALSE, na.rm = FALSE)
+
+cc <- sample(c("red", "green"), 64, rep = TRUE)
+
+lines(x[burst = i][[1]]$x, x[burst = i][[1]]$y)
+
+lines(xtmp[[j]]$x, xtmp[[j]]$y, col = cc)
+
+segments(xtmp[[j]]$x, xtmp[[j]]$y, xtmp[[j]]$x + xtmp[[j]]$dx, xtmp[[j]]$y + xtmp[[j]]$dy, col = cc)
