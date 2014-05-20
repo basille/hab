@@ -3,6 +3,8 @@ hab 1.12
 
 NEW FEATURE
 
+* `infolocs`: Allows to simplify 1 column data frames into vectors
+
 * `plot.ltraj`: Give control over the removal of missing locations
   (paramter `na.rm`)
 
@@ -13,6 +15,8 @@ BUG FIX
 
 * `plot.ltraj` + `ld`: Changed id() to adehabitatLT::id() to avoid
   ambiguity
+
+* `infolocs`: Now return a list with id/burst as names
 
 
 hab 1.11

@@ -26,19 +26,29 @@
 ##'
 ##' ## Try to retrieve the column `toto`:
 ##' infolocs(puechcirc, "toto")
-infolocs <- function(ltraj, which) {
+infolocs <- function(ltraj, which, perani = FALSE, simplify = FALSE) {
     if (!inherits(ltraj, "ltraj"))
         stop("ltraj should be of class ltraj")
     if (!is.null(attr(ltraj[[1]], "infolocs"))) {
         if (missing(which))
             which <- names(attr(ltraj[[1]], "infolocs"))
         ## If infolocs exists but which is not in it, returns NULL
-        else if (!(which %in% names(attr(ltraj[[1]], "infolocs"))))
+        else if (all(!(which %in% names(attr(ltraj[[1]], "infolocs")))))
             return(NULL)
+        ## To simplify 1 column data frames
+        drop <- FALSE
+        if (simplify & length(which) == 1)
+            drop <- TRUE
         re <- lapply(ltraj, function(y) {
             res <- attr(y, "infolocs")
-            return(res[, names(res) %in% which, drop = FALSE])
+            return(res[, names(res) %in% which, drop = drop])
         })
+        ## Give id/burst names to the result
+        if (perani) {
+            names(re) <- id(ltraj)
+            ## binds it...
+        }
+        else names(re) <- burst(ltraj)
         return(re)
     }
     else {
