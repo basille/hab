@@ -89,8 +89,20 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
         stop("x should be an object of class ltraj")
     x <- x[id = id]
     x <- x[burst = burst]
-    ## na.rm = TRUE/FALSE
+    ## Are there any lists in point/line parameters?
+    plist <- sapply(ppar, is.list)
+    llist <- sapply(lpar, is.list)
+    ## End of modification
+    ## Parameter na.rm = TRUE/FALSE
     if (na.rm == TRUE) {
+        ## Remove NAs from individual point/line parameters
+        nas <- lapply(x, function(i) !is.na(i$x))
+        names(nas) <- id(x)
+        for (k in (1:length(ppar))[plist])
+            ppar[[k]] <- mapply(function(x, y) {
+                x[y]
+            }, ppar[[k]], nas, SIMPLIFY = FALSE)
+        ## Remove NAs from trajectory and rebuild it
         typeII <- attr(x, "typeII")
         x <- lapply(x, function(i) {
             jj <- i[!is.na(i$x), ]
@@ -102,6 +114,7 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
         attr(x, "typeII") <- typeII
         attr(x, "regular") <- is.regular(x)
     }
+    ## End of modification
     uu <- lapply(x, function(i) {
         i[, c("x", "y")]
     })
@@ -237,6 +250,13 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     names(xlim) <- id
     names(ylim) <- id
     for (i in id) {
+        ## ppark for individual point display parameters
+        ppark <- ppar
+        if (any(plist))
+            for (k in (1:length(ppark))[plist])
+                ppark[k] <- ppark[[k]][id]
+        ## End of modification
+        ## lpark for individual line display parameters
         if (!is.null(spixdf)) {
             ## In case of 'mfrow = c(1, 1)' (i.e. one plot per window)
             ## if (length(id) == 1) {
@@ -318,7 +338,7 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
                 ## points(x[burst = i][[1]]$x, x[burst = i][[1]]$y,
                 ##   pch = 21, col = "black", bg = "white")
                 do.call(points, c(list(x = x[burst = i][[1]]$x,
-                  y = x[burst = i][[1]]$y), ppar))
+                  y = x[burst = i][[1]]$y), ppark))
                 ## End of modification
             }
             else {
@@ -328,7 +348,7 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
                   ## points(xtmp[[j]]$x, xtmp[[j]]$y, pch = 21,
                   ##   col = "black", bg = "white")
                   do.call(points, c(list(x = xtmp[[j]]$x, y = xtmp[[j]]$y),
-                    ppar))
+                    ppark))
                   ## End of modification
                 }
             }
@@ -356,31 +376,3 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     if (length(id) > 1)
         par(opar)
 }
-
-library(hab)
-data(puechcirc)
-
-adehabitatLT::plot.ltraj(puechcirc)
-plot(puechcirc, na.rm = FALSE)
-
-bla <- puechcirc[1]
-
-debug(plot.ltraj)
-undebug(plot.ltraj)
-
-adehabitatLT::plot.ltraj(bla)
-plot(bla)
-plot(bla, center = TRUE)
-plot(bla, perani = FALSE)
-plot(bla, na.rm = FALSE)
-plot(bla, center = TRUE, na.rm = FALSE)
-plot(bla, perani = FALSE, na.rm = FALSE)
-plot(bla, center = TRUE, perani = FALSE, na.rm = FALSE)
-
-cc <- sample(c("red", "green"), 64, rep = TRUE)
-
-lines(x[burst = i][[1]]$x, x[burst = i][[1]]$y)
-
-lines(xtmp[[j]]$x, xtmp[[j]]$y, col = cc)
-
-segments(xtmp[[j]]$x, xtmp[[j]]$y, xtmp[[j]]$x + xtmp[[j]]$dx, xtmp[[j]]$y + xtmp[[j]]$dy, col = cc)
