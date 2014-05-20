@@ -1,3 +1,11 @@
+hab 1.12
+========
+
+NEW FEATURE
+
+* `plot.ltraj`: Give control over the removal of missing locations
+  (paramter `na.rm`)
+
 BUG FIX
 
 * `plot.ltraj` + `ld`: Changed id() to adehabitatLT::id() to avoid
