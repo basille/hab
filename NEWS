@@ -5,6 +5,8 @@ NEW FEATURE
 
 * `infolocs`: Allows to simplify 1 column data frames into vectors
 
+* `infolocs`: Returns one element per burst or per animal
+
 * `plot.ltraj`: Give control over the removal of missing locations
   (paramter `na.rm`)
 
@@ -16,7 +18,7 @@ BUG FIX
 * `plot.ltraj` + `ld`: Changed id() to adehabitatLT::id() to avoid
   ambiguity
 
-* `infolocs`: Now return a list with id/burst as names
+* `infolocs`: Now returns a list with id/burst as names
 
 
 hab 1.11
