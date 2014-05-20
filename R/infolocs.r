@@ -7,6 +7,11 @@
 ##' @title Infolocs of an Object of Class ltraj
 ##' @seealso See \code{\link[adehabitatLT]{infolocs}} for further
 ##' details on the function and all available arguments.
+##' @param perani Logical. Should the function return one element per burst
+##' (\code{FALSE}, default) or per animal (\code{TRUE}).
+##' @param simplify Logical. If a single variable is requested, should the
+##' function return 1-column data frames (\code{FALSE}, default) or vector
+##' (\code{TRUE}).
 ##' @author Modified by Mathieu Basille
 ##' \email{basille@@ase-research.org}
 ##' @export
@@ -26,7 +31,8 @@
 ##'
 ##' ## Try to retrieve the column `toto`:
 ##' infolocs(puechcirc, "toto")
-infolocs <- function(ltraj, which, perani = FALSE, simplify = FALSE) {
+infolocs <- function(ltraj, which, perani = FALSE, simplify = FALSE)
+{
     if (!inherits(ltraj, "ltraj"))
         stop("ltraj should be of class ltraj")
     if (!is.null(attr(ltraj[[1]], "infolocs"))) {
@@ -46,7 +52,16 @@ infolocs <- function(ltraj, which, perani = FALSE, simplify = FALSE) {
         ## Give id/burst names to the result
         if (perani) {
             names(re) <- id(ltraj)
-            ## binds it...
+            ## Binds unique animals together (bug in case of factors,
+            ## returns the numeric values of the levels)
+            un <- unique(names(re))
+            if (drop)
+                re <- lapply(un, function(n) do.call(c, re[names(re) ==
+                  n]))
+            else
+                re <- lapply(un, function(n) do.call(rbind,
+                  re[names(re) == n]))
+            names(re) <- un
         }
         else names(re) <- burst(ltraj)
         return(re)
