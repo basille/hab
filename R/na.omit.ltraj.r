@@ -1,11 +1,13 @@
 ## na.omit.ltraj
 ##
 ##' \code{na.omit} removes missing locations from a \code{ltraj} object.
+##'
 ##' @title Handle Missing Values in Objects of Class 'ltraj'
 ##' @param object An object of class \code{ltraj}.
 ##' @param rec Logical, whether to recompute descriptive parameters of the
 ##' trajectory (in particular dx, dy, and angles). Use \code{FALSE} with
 ##' care.
+##' @param ... Further arguments not used.
 ##' @return A ltraj object, without missing locations.
 ##' @S3method na.omit ltraj
 ##' @author Mathieu Basille \email{basille@@ase-research.org}
@@ -14,7 +16,7 @@
 ##' data(puechcirc)
 ##' puechcirc
 ##' na.omit(puechcirc)
-na.omit.ltraj <- function(object, rec = TRUE)
+na.omit.ltraj <- function(object, rec = TRUE, ...)
 {
   ## Check ltraj
   if (!inherits(object, "ltraj"))
