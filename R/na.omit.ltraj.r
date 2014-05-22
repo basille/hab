@@ -2,7 +2,7 @@
 ##
 ##' \code{na.omit} removes missing locations from a \code{ltraj} object.
 ##' @title Handle Missing Values in Objects of Class 'ltraj'
-##' @param x An object of class \code{ltraj}.
+##' @param object An object of class \code{ltraj}.
 ##' @param rec Logical, whether to recompute descriptive parameters of the
 ##' trajectory (in particular dx, dy, and angles). Use \code{FALSE} with
 ##' care.
@@ -14,40 +14,39 @@
 ##' data(puechcirc)
 ##' puechcirc
 ##' na.omit(puechcirc)
-na.omit.ltraj <- function(x, rec = TRUE)
+na.omit.ltraj <- function(object, rec = TRUE)
 {
   ## Check ltraj
-  if (!inherits(x, "ltraj"))
-    stop("x should be an object of class ltraj")
+  if (!inherits(object, "ltraj"))
+    stop("object should be an object of class ltraj")
   ## Get typeII attribute
-  typeII <- attr(x, "typeII")
+  typeII <- attr(object, "typeII")
   ## Get the position of non NAs,
-  nas <- lapply(x, function(i) !is.na(i$x))
-  #    names(nas) <- id(x)
+  nas <- lapply(object, function(i) !is.na(i$x))
   ## Get infolocs and remove it from the ltraj
-  info <- infolocs(x)
-  x <- removeinfo(x)
+  info <- infolocs(object)
+  object <- removeinfo(object)
   ## If there is infolocs, remove lines with NAs
   if (!is.null(info))
     info <- mapply(function(x, y) {
       x[y, , drop = FALSE]
     }, info, nas, SIMPLIFY = FALSE)
   ## Remove NAs from the ltraj
-  x <- lapply(x, function(i) {
+  object <- lapply(object, function(i) {
     jj <- i[!is.na(i$x), ]
     attr(jj, "id") <- attr(i, "id")
     attr(jj, "burst") <- attr(i, "burst")
     return(jj)
   })
   ## Set back class and ltraj attributes
-  class(x) <- c("ltraj", "list")
-  attr(x, "typeII") <- typeII
-  attr(x, "regular") <- is.regular(x)
+  class(object) <- c("ltraj", "list")
+  attr(object, "typeII") <- typeII
+  attr(object, "regular") <- is.regular(object)
   ## Recompute ltraj parameters
   if (rec)
-      x <- rec(x)
+      object <- rec(object)
   ## Associate infolocs without NAs
   if (!is.null(info))
-      infolocs(x) <- info
-  return(x)
+      infolocs(object) <- info
+  return(object)
 }
