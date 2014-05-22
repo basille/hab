@@ -7,8 +7,8 @@
 ##' trajectory (in particular dx, dy, and angles). Use \code{FALSE} with
 ##' care.
 ##' @return A ltraj object, without missing locations.
-##' @author Modified by Mathieu Basille
-##' \email{basille@@ase-research.org}
+##' @S3method na.omit ltraj
+##' @author Mathieu Basille \email{basille@@ase-research.org}
 ##' @export
 ##' @examples
 ##' data(puechcirc)
