@@ -42,9 +42,7 @@ infolocs <- function(ltraj, which, perani = FALSE, simplify = FALSE)
         else if (all(!(which %in% names(attr(ltraj[[1]], "infolocs")))))
             return(NULL)
         ## To simplify 1 column data frames
-        drop <- FALSE
-        if (simplify & length(which) == 1)
-            drop <- TRUE
+        drop <- ifelse(simplify & length(which) == 1, TRUE, FALSE)
         re <- lapply(ltraj, function(y) {
             res <- attr(y, "infolocs")
             return(res[, names(res) %in% which, drop = drop])
