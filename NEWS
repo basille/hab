@@ -3,6 +3,8 @@ hab 1.12
 
 NEW FEATURE
 
+* `na.omit.ltraj`: Handle Missing Values in Objects of Class 'ltraj'
+
 * `infolocs`: Allows to simplify 1 column data frames into vectors
 
 * `infolocs`: Returns one element per burst or per animal
