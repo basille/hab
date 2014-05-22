@@ -24,10 +24,9 @@
 ##' (\code{nc}) in the device (the default uses
 ##' \code{n2mfrow(length(id))} if \code{length(id) <= 12}, and
 ##' \code{mfrow = c(3, 4)} otherwhise).
-##' @param ppar A list of arguments that allows the user to modify
-##' point display, using any argument available to
-##' \code{points}. Default is \code{list(pch = 21, col = "black", bg =
-##' "white")}. See Details.
+##' @param ppar A list of arguments that allows the user to modify point
+##' display, using any argument available to \code{points}. Default is
+##' \code{list(pch = 21, col = "black", bg = "white")}. See Details.
 ##' @param lpar A list of arguments that allows the user to modify line
 ##' display, using any argument available to \code{lines}. Default is
 ##' \code{list()}, i.e. an empty list. See Details.
