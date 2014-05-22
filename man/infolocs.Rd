@@ -2,7 +2,16 @@
 \alias{infolocs}
 \title{Infolocs of an Object of Class ltraj}
 \usage{
-infolocs(ltraj, which)
+infolocs(ltraj, which, perani = FALSE, simplify = FALSE)
+}
+\arguments{
+  \item{perani}{Logical. Should the function return one
+  element per burst (\code{FALSE}, default) or per animal
+  (\code{TRUE}).}
+
+  \item{simplify}{Logical. If a single variable is
+  requested, should the function return 1-column data
+  frames (\code{FALSE}, default) or vector (\code{TRUE}).}
 }
 \description{
 Modified version of \code{\link[adehabitatLT]{infolocs}}

@@ -1,0 +1,31 @@
+\name{na.omit.ltraj}
+\alias{na.omit.ltraj}
+\title{Handle Missing Values in Objects of Class 'ltraj'}
+\usage{
+\method{na.omit}{ltraj}(object, rec = TRUE, ...)
+}
+\arguments{
+  \item{object}{An object of class \code{ltraj}.}
+
+  \item{rec}{Logical, whether to recompute descriptive
+  parameters of the trajectory (in particular dx, dy, and
+  angles). Use \code{FALSE} with care.}
+
+  \item{...}{Further arguments not used.}
+}
+\value{
+A ltraj object, without missing locations.
+}
+\description{
+\code{na.omit} removes missing locations from a
+\code{ltraj} object.
+}
+\examples{
+data(puechcirc)
+puechcirc
+na.omit(puechcirc)
+}
+\author{
+Mathieu Basille \email{basille@ase-research.org}
+}
+

@@ -2,12 +2,15 @@
 \alias{trajdyn}
 \title{Interactive Display of Objects of Class \code{ltraj}}
 \usage{
-trajdyn(x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
-  by = 1, only = Inf, recycle = TRUE, ppar = list(pch = 16),
-  lpar = list(lwd = 2), nvar = NULL, display = c("guess", "windows",
+trajdyn(x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
+  vscale = 1, by = 1, only = Inf, recycle = TRUE, ppar = list(pch =
+  16), lpar = list(lwd = 2), nvar = NULL, display = c("guess", "windows",
   "tk"), ...)
 }
 \arguments{
+  \item{na.rm}{Logical, whether to remove missing
+  locations.}
+
   \item{by}{The number of previous points/steps to
   increment at each step. Default is an increment of 1
   point/step.}
@@ -17,11 +20,13 @@ trajdyn(x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
 
   \item{ppar}{A list of arguments that allows the user to
   modify point display, using any argument available to
-  \code{points}. Default is \code{list(pch = 16)}.}
+  \code{points}. Default is \code{list(pch = 16)}. See
+  Details.}
 
   \item{lpar}{A list of arguments that allows the user to
   modify line display, using any argument available to
-  \code{lines}. Default is \code{list(lwd = 2)}.}
+  \code{lines}. Default is \code{list(lwd = 2)}. See
+  Details.}
 
   \item{nvar}{A character string giving the name of a
   variable.}
@@ -76,6 +81,15 @@ we t u f hj xcm
 On a AZERTY keyboard:
 
 e t u f hj m wxc
+
+It is possible to use point and line parameters globally
+for every trajectory displayed. In this case, \code{ppar}
+and \code{lpar} need just be a list of graphical
+parameters, such as \code{list(pch = 21, col = "black", bg
+= "white")}. It is also possible to use parameters for
+single steps, using as graphical parameter a list of
+vectors of length equal to each trajectory. Such
+information can be based on \code{infolocs}, see Example.
 }
 \examples{
 \dontrun{
@@ -83,6 +97,28 @@ data(puechcirc)
 
 ## Use of `by` and `only` to select the previous k points/steps:
 trajdyn(puechcirc, by = 10, only = 20)
+
+## Use of `ppar` and `lpar` globally:
+trajdyn(puechcirc, ppar = list(col = "red"), lpar = list(col = "blue"))
+
+## Create some random `infolocs`:
+infolocs(puechcirc) <- list(data.frame(col = sample(c("red",
+     "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
+     data.frame(col = sample(c("blue", "darkred"),
+         69, rep = TRUE), stringsAsFactors = FALSE),
+     data.frame(col = sample(c("darkgreen", "purple"),
+         66, rep = TRUE), stringsAsFactors = FALSE))
+
+## Use the infolocs to color points and steps:
+trajdyn(puechcirc, by = 1, only = 20, ppar = list(pch = 19,
+    col = infolocs(puechcirc, "col", simplify = TRUE)),
+    lpar = list(col = infolocs(puechcirc, "col", simplify = TRUE)))
+
+## The same without removing the missing locations:
+trajdyn(puechcirc, by = 1, only = 20, ppar = list(pch = 19,
+    col = infolocs(puechcirc, "col", simplify = TRUE)),
+    lpar = list(col = infolocs(puechcirc, "col", simplify = TRUE)),
+    na.rm = FALSE)
 
 ## Use of `nvar` to dynamically fill in new data:
 (newtraj <- trajdyn(puechcirc, nvar = "Var"))

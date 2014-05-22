@@ -6,5 +6,6 @@
 ##' @title Habitat selection and movement analyses
 ##' @docType package
 ##' @name hab
+##' @importFrom stats na.omit
 ##' @author Mathieu Basille \email{basille@@ase-research.org}
 NULL
