@@ -13,7 +13,10 @@ NEW FEATURE
   (paramter `na.rm`)
 
 * `plot.ltraj`: Allows to have individual point parameters, using nested
-  lists
+  lists in `ppar`
+
+* `plot.ltraj`: Allows to have individual step parameters, using nested
+  lists in `lpar`
 
 BUG FIX
 
