@@ -13,12 +13,21 @@ NEW FEATURE
   (paramter `na.rm`)
 
 * `plot.ltraj`: Allows to have individual point parameters, using nested
-  lists
+  lists in `ppar`
+
+* `plot.ltraj`: Allows to have individual step parameters, using nested
+  lists in `lpar`
 
 BUG FIX
 
 * `plot.ltraj` + `ld`: Changed id() to adehabitatLT::id() to avoid
   ambiguity
+
+* `plot.ltraj`: `perani` is now set to FALSE by default, using burst as the
+  basic bloc
+
+* `plot.ltraj`: parameters now use `id = unique(adehabitatLT::id(x)), burst
+    = adehabitatLT::burst(x)` (does not change behavior)
 
 * `infolocs`: Now returns a list with id/burst as names
 

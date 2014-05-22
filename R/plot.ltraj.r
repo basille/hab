@@ -6,7 +6,16 @@
 ##' \code{center}). Also enables the plot of a
 ##' \code{SpatialPoints(DataFrame)} in the background.
 ##'
+##' It is possible to use point and line parameters globally for every
+##' trajectory displayed. In this case, \code{ppar} and \code{lpar} need
+##' just be a list of graphical parameters, such as \code{list(pch = 21,
+##' col = "black", bg = "white")}. It is also possible to use parameters
+##' for single steps, using as graphical parameter a list of vectors of
+##' length equal to each trajectory. Such information can be based on
+##' \code{infolocs}, see Example.
+##'
 ##' @title Graphical Display of an Object of Class "ltraj"
+##' @param na.rm Logical, whether to remove missing locations.
 ##' @param spotdf An object of class \code{SpatialPoints}.
 ##' @param center Logical, whether to center each plot around the
 ##' current burst (default = \code{FALSE}).
@@ -18,10 +27,10 @@
 ##' @param ppar A list of arguments that allows the user to modify
 ##' point display, using any argument available to
 ##' \code{points}. Default is \code{list(pch = 21, col = "black", bg =
-##' "white")}.
-##' @param lpar A list of arguments that allows the user to modify
-##' line display, using any argument available to
-##' \code{lines}. Default is \code{list()}, i.e. an empty list.
+##' "white")}. See Details.
+##' @param lpar A list of arguments that allows the user to modify line
+##' display, using any argument available to \code{lines}. Default is
+##' \code{list()}, i.e. an empty list. See Details.
 ##' @param spixdfpar A list of arguments that allows the user to
 ##' modify SpatialPixelsDataFrame display, using any argument
 ##' available to \code{image}. Default is \code{list(col =
@@ -41,14 +50,36 @@
 ##' @examples
 ##' data(puechcirc)
 ##'
+##' ## Point and line parameters
 ##' plot(puechcirc)
 ##' plot(puechcirc, ppar = list(pch = 2, cex = .5), lpar = list(lty = 2,
 ##'     col = grey(.5)))
+##'
+##' ## id/perani and mfrow
 ##' plot(puechcirc, perani = FALSE)
 ##' \dontrun{
 ##' plot(puechcirc, perani = FALSE, mfrow = c(1, 2))}
 ##' plot(puechcirc, id = "JE93", perani = FALSE)
 ##'
+##' ## Using parameters for single steps
+##' infolocs(puechcirc) <- list(data.frame(col = sample(c("red",
+##'     "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
+##'     data.frame(col = sample(c("blue", "darkred"),
+##'         69, rep = TRUE), stringsAsFactors = FALSE),
+##'     data.frame(col = sample(c("darkgreen", "purple"),
+##'         66, rep = TRUE), stringsAsFactors = FALSE))
+##'
+##' ## Per burst (default)
+##' plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
+##'     "col", simplify = TRUE)), lpar = list(col = infolocs(puechcirc,
+##'     "col", simplify = TRUE)), na.rm = FALSE)
+##'
+##' ## Per animal
+##' plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
+##'     "col", simplify = TRUE, perani = TRUE)), lpar = list(col = infolocs(puechcirc,
+##'     "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE, perani = TRUE)
+##'
+##' ## Using a SpatialPixelsDataFrame
 ##' data(puechabonsp)
 ##'
 ##' plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1])
@@ -56,18 +87,18 @@
 ##'     ppar = list(pch = 2, cex = .5), lpar = list(lty = 2, col = "white"),
 ##'     spixdfpar = list(col = gray((1:240)/256)))
 ##'
+##' ## Using a SpatialPolygonsDataFrame
 ##' cont <- getcontour(puechabonsp$map[,1])
 ##' plot(puechcirc, spoldf = cont)
 ##' plot(puechcirc, spoldf = cont, ppar = list(pch = 2, cex = .5),
 ##'     lpar = list(lty = 2, col = grey(.5)), spoldfpar = list(col = "cornsilk",
 ##'         border = grey(.5)))
-plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
-    which = "id"))), burst = unlist(lapply(x, attr, which = "burst")),
-    na.rm = TRUE,
-    spixdf = NULL, spoldf = NULL, spotdf = NULL, xlim = NULL,
-    ylim = NULL, center = FALSE, addpoints = TRUE, addlines = TRUE,
-    perani = TRUE, final = TRUE, mfrow, ppar = list(pch = 21,
-        col = "black", bg = "white"), lpar = list(), spixdfpar = list(col = gray((240:1)/256)),
+plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
+    adehabitatLT::burst(x), na.rm = TRUE, spixdf = NULL, spoldf = NULL,
+    spotdf = NULL, xlim = NULL, ylim = NULL, center = FALSE,
+    addpoints = TRUE, addlines = TRUE, perani = FALSE, final = TRUE,
+    mfrow, ppar = list(pch = 21, col = "black", bg = "white"),
+    lpar = list(), spixdfpar = list(col = gray((240:1)/256)),
     spoldfpar = list(col = "green"), spotdfpar = list(pch = 3,
         col = "darkgreen"), ...)
 {
@@ -98,21 +129,29 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
         ## Remove NAs from individual point/line parameters
         nas <- lapply(x, function(i) !is.na(i$x))
         names(nas) <- id(x)
-        for (k in (1:length(ppar))[plist])
-            ppar[[k]] <- mapply(function(x, y) {
-                x[y]
-            }, ppar[[k]], nas, SIMPLIFY = FALSE)
+        ## Only if the list of parameter is of length > 0
+        if (length(ppar) > 0 & any(plist))
+            for (k in (1:length(ppar))[plist])
+                ppar[[k]] <- mapply(function(x, y) {
+                  x[y]
+                }, ppar[[k]], nas, SIMPLIFY = FALSE)
+        if (length(lpar) > 0 & any(llist))
+            for (k in (1:length(lpar))[llist])
+                lpar[[k]] <- mapply(function(x, y) {
+                  x[y]
+                }, lpar[[k]], nas, SIMPLIFY = FALSE)
         ## Remove NAs from trajectory and rebuild it
-        typeII <- attr(x, "typeII")
-        x <- lapply(x, function(i) {
-            jj <- i[!is.na(i$x), ]
-            attr(jj, "id") <- attr(i, "id")
-            attr(jj, "burst") <- attr(i, "burst")
-            return(jj)
-        })
-        class(x) <- c("ltraj", "list")
-        attr(x, "typeII") <- typeII
-        attr(x, "regular") <- is.regular(x)
+        x <- na.omit(x)
+        #typeII <- attr(x, "typeII")
+        #x <- lapply(x, function(i) {
+        #    jj <- i[!is.na(i$x), ]
+        #    attr(jj, "id") <- attr(i, "id")
+        #    attr(jj, "burst") <- attr(i, "burst")
+        #    return(jj)
+        #})
+        #class(x) <- c("ltraj", "list")
+        #attr(x, "typeII") <- typeII
+        #attr(x, "regular") <- is.regular(x)
     }
     ## End of modification
     uu <- lapply(x, function(i) {
@@ -159,10 +198,12 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ##     maxxl))
             if (center) {
                 ## Allows for NAs
-                maxxl <- max(unlist(lapply(oo, function(kk) diff(range(kk, na.rm = TRUE)))))
-                xlim <- lapply(oo, function(ki) c(min(ki, na.rm = TRUE) - (maxxl -
-                    diff(range(ki, na.rm = TRUE)))/2, max(ki, na.rm = TRUE) + (maxxl -
-                    diff(range(ki, na.rm = TRUE)))/2))
+                maxxl <- max(unlist(lapply(oo, function(kk) diff(range(kk,
+                  na.rm = TRUE)))))
+                xlim <- lapply(oo, function(ki) c(min(ki, na.rm = TRUE) -
+                  (maxxl - diff(range(ki, na.rm = TRUE)))/2,
+                  max(ki, na.rm = TRUE) + (maxxl - diff(range(ki,
+                    na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else {
@@ -179,15 +220,18 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ##     maxxl))
             if (center) {
                 ## Allows for NAs
-                maxxl <- max(unlist(lapply(x, function(ki) diff(range(ki$x, na.rm = TRUE)))))
-                xlim <- lapply(x, function(ki) c(min(ki$x, na.rm = TRUE) - (maxxl -
-                    diff(range(ki$x, na.rm = TRUE)))/2, max(ki$x, na.rm = TRUE) + (maxxl -
-                    diff(range(ki$x, na.rm = TRUE)))/2))
+                maxxl <- max(unlist(lapply(x, function(ki) diff(range(ki$x,
+                  na.rm = TRUE)))))
+                xlim <- lapply(x, function(ki) c(min(ki$x, na.rm = TRUE) -
+                  (maxxl - diff(range(ki$x, na.rm = TRUE)))/2,
+                  max(ki$x, na.rm = TRUE) + (maxxl - diff(range(ki$x,
+                    na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else {
                 ## Allows for NAs
-                xrange <- range(unlist(lapply(x, function(i) i$x)), na.rm = TRUE)
+                xrange <- range(unlist(lapply(x, function(i) i$x)),
+                  na.rm = TRUE)
                 xlim <- lapply(x, function(i) xrange)
             }
             ## End of modification
@@ -210,10 +254,12 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ##     maxyl))
             if (center) {
                 ## Allows for NAs
-                maxyl <- max(unlist(lapply(oo, function(kk) diff(range(kk, na.rm = TRUE)))))
-                ylim <- lapply(oo, function(ki) c(min(ki, na.rm = TRUE) - (maxyl -
-                    diff(range(ki, na.rm = TRUE)))/2, max(ki, na.rm = TRUE) + (maxyl -
-                    diff(range(ki, na.rm = TRUE)))/2))
+                maxyl <- max(unlist(lapply(oo, function(kk) diff(range(kk,
+                  na.rm = TRUE)))))
+                ylim <- lapply(oo, function(ki) c(min(ki, na.rm = TRUE) -
+                  (maxyl - diff(range(ki, na.rm = TRUE)))/2,
+                  max(ki, na.rm = TRUE) + (maxyl - diff(range(ki,
+                    na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else  {
@@ -230,15 +276,18 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             ##     maxyl))
             if (center) {
                 ## Allows for NAs
-                maxyl <- max(unlist(lapply(x, function(ki) diff(range(ki$y, na.rm = TRUE)))))
-                ylim <- lapply(x, function(ki) c(min(ki$y, na.rm = TRUE) - (maxyl -
-                    diff(range(ki$y, na.rm = TRUE)))/2, max(ki$y, na.rm = TRUE) + (maxyl -
-                    diff(range(ki$y, na.rm = TRUE)))/2))
+                maxyl <- max(unlist(lapply(x, function(ki) diff(range(ki$y,
+                  na.rm = TRUE)))))
+                ylim <- lapply(x, function(ki) c(min(ki$y, na.rm = TRUE) -
+                  (maxyl - diff(range(ki$y, na.rm = TRUE)))/2,
+                  max(ki$y, na.rm = TRUE) + (maxyl - diff(range(ki$y,
+                    na.rm = TRUE)))/2))
             }
             ## Else the same for all
             else {
                 ## Allows for NAs
-                yrange <- range(unlist(lapply(x, function(i) i$y)), na.rm = TRUE)
+                yrange <- range(unlist(lapply(x, function(i) i$y)),
+                  na.rm = TRUE)
                 ylim <- lapply(x, function(i) yrange)
             }
             ## End of modification
@@ -252,11 +301,17 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
     for (i in id) {
         ## ppark for individual point display parameters
         ppark <- ppar
-        if (any(plist))
+        if (any(plist)) {
             for (k in (1:length(ppark))[plist])
-                ppark[k] <- ppark[[k]][id]
+                ppark[k] <- ppark[[k]][i]
+        }
         ## End of modification
         ## lpark for individual line display parameters
+        lpark <- lpar
+        if (any(llist))
+          for (k in (1:length(lpark))[llist])
+            lpark[k] <- lpark[[k]][i]
+        ## End of modification
         if (!is.null(spixdf)) {
             ## In case of 'mfrow = c(1, 1)' (i.e. one plot per window)
             ## if (length(id) == 1) {
@@ -317,19 +372,27 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
             if (idc == "burst") {
                 ## Allows line modification
                 ## lines(x[burst = i][[1]]$x, x[burst = i][[1]]$y)
-                do.call(lines, c(list(x = x[burst = i][[1]]$x,
-                  y = x[burst = i][[1]]$y), lpar))
+                #do.call(lines, c(list(x = x[burst = i][[1]]$x,
+                #  y = x[burst = i][[1]]$y), lpar))
+                do.call(segments, c(list(x0 = x[burst = i][[1]]$x,
+                  y0 = x[burst = i][[1]]$y, x1 = x[burst = i][[1]]$x +
+                    x[burst = i][[1]]$dx, y1 = x[burst = i][[1]]$y +
+                    x[burst = i][[1]]$dy), lpark))
                 ## End of modification
             }
             else {
-                xtmp <- x[id = i]
-                for (j in 1:length(xtmp)) {
-                  ## Allows line modification
-                  ## lines(xtmp[[j]]$x, xtmp[[j]]$y)
-                  do.call(lines, c(list(x = xtmp[[j]]$x, y = xtmp[[j]]$y),
-                    lpar))
-                  ## End of modification
-                }
+                ## Bind all identical ids together
+                ## xtmp <- x[id = i]
+                xtmp <- do.call(rbind, x[id = i])
+                ## End of modification
+                ## Allows line modification
+                ## for (j in 1:length(xtmp)) {
+                ##   lines(xtmp[[j]]$x, xtmp[[j]]$y)
+                ## }
+                do.call(segments, c(list(x0 = xtmp$x, y0 = xtmp$y,
+                  x1 = xtmp$x + xtmp$dx, y1 = xtmp$y + xtmp$dy),
+                  lpark))
+                ## End of modification
             }
         }
         if (addpoints) {
@@ -342,15 +405,18 @@ plot.ltraj <- function(x, id = unique(unlist(lapply(x, attr,
                 ## End of modification
             }
             else {
-                xtmp <- x[id = i]
-                for (j in 1:length(xtmp)) {
-                  ## Allows point modification
-                  ## points(xtmp[[j]]$x, xtmp[[j]]$y, pch = 21,
-                  ##   col = "black", bg = "white")
-                  do.call(points, c(list(x = xtmp[[j]]$x, y = xtmp[[j]]$y),
-                    ppark))
-                  ## End of modification
-                }
+                ## Bind all identical ids together
+                ## xtmp <- x[id = i]
+                xtmp <- do.call(rbind, x[id = i])
+                ## End of modification
+                ## Allows line modification
+                ## for (j in 1:length(xtmp)) {
+                ##   points(xtmp[[j]]$x, xtmp[[j]]$y, pch = 21,
+                ##     col = "black", bg = "white")
+                ## }
+                do.call(points, c(list(x = xtmp$x, y = xtmp$y),
+                  ppark))
+                ## End of modification
             }
         }
         if (final) {
