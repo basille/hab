@@ -1,7 +1,7 @@
 hab 1.12
 ========
 
-NEW FEATURE
+NEW FEATURES
 
 * `na.omit.ltraj`: Handle Missing Values in Objects of Class 'ltraj'
 
@@ -18,7 +18,16 @@ NEW FEATURE
 * `plot.ltraj`: Allows to have individual step parameters, using nested
   lists in `lpar`
 
-BUG FIX
+* `trajdyn`: Give control over the removal of missing locations (paramter
+  `na.rm`)
+
+* `trajdyn`: Allows to have individual point parameters, using nested lists
+  in `ppar`
+
+* `trajdyn`: Allows to have individual step parameters, using nested lists
+  in `lpar`
+
+BUG FIXES
 
 * `plot.ltraj` + `ld`: Changed id() to adehabitatLT::id() to avoid
   ambiguity
@@ -30,6 +39,8 @@ BUG FIX
     = adehabitatLT::burst(x)` (does not change behavior)
 
 * `infolocs`: Now returns a list with id/burst as names
+
+* `trajdyn`: Bug with 's'how when only 1 variable in infolocs
 
 
 hab 1.11

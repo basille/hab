@@ -46,17 +46,26 @@
 ##'   f hj m
 ##' wxc
 ##'
+##' It is possible to use point and line parameters globally for every
+##' trajectory displayed. In this case, \code{ppar} and \code{lpar} need
+##' just be a list of graphical parameters, such as \code{list(pch = 21,
+##' col = "black", bg = "white")}. It is also possible to use parameters
+##' for single steps, using as graphical parameter a list of vectors of
+##' length equal to each trajectory. Such information can be based on
+##' \code{infolocs}, see Example.
+##'
 ##' @title Interactive Display of Objects of Class \code{ltraj}
+##' @param na.rm Logical, whether to remove missing locations.
 ##' @param by The number of previous points/steps to increment at each
 ##' step. Default is an increment of 1 point/step.
 ##' @param only The number of previous points/steps to
 ##' display. Default is \code{Inf}, i.e. all points/steps.
-##' @param ppar A list of arguments that allows the user to modify
-##' point display, using any argument available to
-##' \code{points}. Default is \code{list(pch = 16)}.
-##' @param lpar A list of arguments that allows the user to modify
-##' line display, using any argument available to
-##' \code{lines}. Default is \code{list(lwd = 2)}.
+##' @param ppar A list of arguments that allows the user to modify point
+##' display, using any argument available to \code{points}. Default is
+##' \code{list(pch = 16)}. See Details.
+##' @param lpar A list of arguments that allows the user to modify line
+##' display, using any argument available to \code{lines}. Default is
+##' \code{list(lwd = 2)}. See Details.
 ##' @param nvar A character string giving the name of a variable.
 ##' @return If a \code{nvar} is provided, return the original ltraj
 ##' with updated values in \code{infolocs(nvar)}.
@@ -70,16 +79,98 @@
 ##' ## Use of `by` and `only` to select the previous k points/steps:
 ##' trajdyn(puechcirc, by = 10, only = 20)
 ##'
+##' ## Use of `ppar` and `lpar` globally:
+##' trajdyn(puechcirc, ppar = list(col = "red"), lpar = list(col = "blue"))
+##'
+##' ## Create some random `infolocs`:
+##' infolocs(puechcirc) <- list(data.frame(col = sample(c("red",
+##'      "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
+##'      data.frame(col = sample(c("blue", "darkred"),
+##'          69, rep = TRUE), stringsAsFactors = FALSE),
+##'      data.frame(col = sample(c("darkgreen", "purple"),
+##'          66, rep = TRUE), stringsAsFactors = FALSE))
+##'
+##' ## Use the infolocs to color points and steps:
+##' trajdyn(puechcirc, by = 1, only = 20, ppar = list(pch = 19,
+##'     col = infolocs(puechcirc, "col", simplify = TRUE)),
+##'     lpar = list(col = infolocs(puechcirc, "col", simplify = TRUE)))
+##'
+##' ## The same without removing the missing locations:
+##' trajdyn(puechcirc, by = 1, only = 20, ppar = list(pch = 19,
+##'     col = infolocs(puechcirc, "col", simplify = TRUE)),
+##'     lpar = list(col = infolocs(puechcirc, "col", simplify = TRUE)),
+##'     na.rm = FALSE)
+##'
 ##' ## Use of `nvar` to dynamically fill in new data:
 ##' (newtraj <- trajdyn(puechcirc, nvar = "Var"))
 ##' }
-trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
+trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1, vscale = 1,
     by = 1, only = Inf, recycle = TRUE, ppar = list(pch = 16), lpar = list(lwd = 2),
     nvar = NULL, display = c("guess", "windows", "tk"), ...)
 {
     if (!inherits(x, "ltraj"))
         stop("x should be of class 'ltraj'")
     e1 <- new.env(parent = baseenv())
+    ## Are there any lists in point/line parameters?
+    plist <- sapply(ppar, is.list)
+    llist <- sapply(lpar, is.list)
+    ## Check the length of list parameters
+    if (any(plist)) {
+        for (k in (1:length(ppar))[plist])
+            if (!isTRUE(all.equal(unlist(lapply(ppar[[k]], length)), unlist(lapply(x, nrow)), check.attributes = FALSE)))
+                stop("Point parameters for individual locations must have the same length as the corresponding burst")
+    }
+    if (any(llist)) {
+        for (k in (1:length(lpar))[llist])
+            if (!isTRUE(all.equal(unlist(lapply(lpar[[k]], length)), unlist(lapply(x, nrow)), check.attributes = FALSE)))
+                stop("Line parameters for individual steps must have the same length as the corresponding burst")
+    }
+    ## End of modification
+    ## Remove missing values, and recompute trajectory parameters
+    ## typeII <- attr(x, "typeII")
+    ## x <- lapply(x, function(i) {
+    ##     jj <- i[!is.na(i$x), ]
+    ##     attr(jj, "id") <- attr(i, "id")
+    ##     attr(jj, "burst") <- attr(i, "burst")
+    ##     return(jj)
+    ## })
+    ## class(x) <- c("ltraj", "list")
+    ## attr(x, "typeII") <- typeII
+    ## attr(x, "regular") <- is.regular(x)
+    if (na.rm) {
+        ## Remove NAs from individual point/line parameters
+        nas <- lapply(x, function(i) !is.na(i$x))
+        names(nas) <- id(x)
+        ## Only if the list of parameter is of length > 0
+        if (length(ppar) > 0 & any(plist))
+            for (k in (1:length(ppar))[plist])
+                ppar[[k]] <- mapply(function(x, y) {
+                  x[y]
+                }, ppar[[k]], nas, SIMPLIFY = FALSE)
+        if (length(lpar) > 0 & any(llist))
+            for (k in (1:length(lpar))[llist])
+                lpar[[k]] <- mapply(function(x, y) {
+                  x[y]
+                }, lpar[[k]], nas, SIMPLIFY = FALSE)
+        x <- na.omit(x)
+    }
+    ## Store point/line parameters in e1 for first burst
+    ppark <- ppar
+    if (any(plist)) {
+        for (k in (1:length(ppark))[plist])
+            ppark[k] <- ppark[[k]][burst]
+    }
+    assign("ppark", ppark, envir = e1)
+    lpark <- lpar
+    if (any(llist)) {
+        for (k in (1:length(lpark))[llist])
+            lpark[k] <- lpark[[k]][burst]
+    }
+    assign("lpark", lpark, envir = e1)
+    ## End of modification
+    u <- x
+    assign("x", x[burst = burst], envir = e1)
+    assign("v", x[burst = burst], envir = e1)
     ## Prepare 'info': get the whole infolocs of the ltraj
     info <- infolocs(x)
     ## If a nvar is requested
@@ -106,22 +197,7 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
     }
     ## Store info in e1
     assign("info", info, envir = e1)
-    typeII <- attr(x, "typeII")
-    x <- lapply(x, function(i) {
-        jj <- i[!is.na(i$x), ]
-        attr(jj, "id") <- attr(i, "id")
-        attr(jj, "burst") <- attr(i, "burst")
-        return(jj)
-    })
-    class(x) <- c("ltraj", "list")
-    attr(x, "typeII") <- typeII
-    attr(x, "regular") <- is.regular(x)
-    u <- x
-    ## With 'addvec', the ltraj parameters needs to be recalculated
-    ## (otherwise dx/dt can be NAs)
-    x <- rec(x)
-    assign("x", x[burst = burst], envir = e1)
-    assign("v", x[burst = burst], envir = e1)
+    ## End of modification
     assign("ajouli", FALSE, envir = e1)
     assign("ajoupo", FALSE, envir = e1)
     assign("ajoubu", FALSE, envir = e1)
@@ -150,13 +226,31 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
         assign("hoho", 1, envir = e1)
     replot <- function() {
         opar <- par(mar = c(0, 0, 0, 0), bg = "white")
+        ## Retrieve point/line parameters and keep only last 'only'
+        pparky <- get("ppark", envir = e1)
+        if (any(plist)) {
+            for (k in (1:length(pparky))[plist])
+                pparky[[k]] <- pparky[[k]][tail(1:get("K",
+                  envir = e1), ifelse(is.null(get("only", envir = e1)),
+                  get("K", envir = e1), get("only", envir = e1)))]
+        }
+        lparky <- get("lpark", envir = e1)
+        if (any(llist)) {
+            for (k in (1:length(lparky))[llist])
+                lparky[[k]] <- lparky[[k]][tail(1:get("K",
+                  envir = e1), ifelse(is.null(get("only", envir = e1)),
+                  get("K", envir = e1), get("only", envir = e1)))]
+        }
+        ## End of modification
         tmptmp <- get("x", envir = e1)
         attr(tmptmp[[1]], "id") <- " "
         assign("x", tmptmp, envir = e1)
         if (get("lim", envir = e1)) {
-            assign("xlim", range(get("x", envir = e1)[[1]]$x),
+            ## Allows for NAs
+            assign("xlim", range(get("x", envir = e1)[[1]]$x, na.rm = TRUE),
                 envir = e1)
-            assign("ylim", range(get("x", envir = e1)[[1]]$y),
+            ## Allows for NAs
+            assign("ylim", range(get("x", envir = e1)[[1]]$y, na.rm = TRUE),
                 envir = e1)
         }
         plot(get("x", envir = e1), id = attr(get("x", envir = e1)[[1]],
@@ -176,16 +270,23 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
             })
         }
         ## addlines before addpoints
-        if (get("addlines", envir = e1))
-            if (get("K", envir = e1) > 1)
+        if (get("addlines", envir = e1)) {
+            ## if (get("K", envir = e1) > 1) {
                 ## Plot only the last 'only' steps, and allows for line
                 ## modification:
                 ## lines(get("x", envir = e1)[[1]][1:get("K", envir = e1),
                 ##   c("x", "y")], lwd = 2)
-                do.call(lines, c(get("x", envir = e1)[[1]][tail(1:get("K",
+                bla <- get("x", envir = e1)[[1]][tail(1:get("K",
                   envir = e1), ifelse(is.null(get("only", envir = e1)),
                   get("K", envir = e1), get("only", envir = e1))),
-                  c("x", "y")], lpar))
+                  c("x", "y", "dx", "dy")]
+                do.call(segments, c(list(x0 = bla$x, y0 = bla$y, x1 =
+                  bla$x + bla$dx, y1 = bla$y + bla$dy), lparky))
+                ## do.call(lines, c(get("x", envir = e1)[[1]][tail(1:get("K",
+                ##   envir = e1), ifelse(is.null(get("only", envir = e1)),
+                ##   get("K", envir = e1), get("only", envir = e1))),
+                ##   c("x", "y")], lparky))
+            }
         if (get("addpoints", envir = e1))
             ## Plot only the last 'only' points, and allows for point
             ## modification:
@@ -194,7 +295,7 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
             do.call(points, c(get("x", envir = e1)[[1]][tail(1:get("K",
                 envir = e1), ifelse(is.null(get("only", envir = e1)),
                 get("K", envir = e1), get("only", envir = e1))),
-                c("x", "y")], ppar))
+                c("x", "y")], pparky))
         if (get("ajouli", envir = e1))
             lines(c(get("a1", envir = e1)[1], get("a2", envir = e1)[1]),
                 c(get("a1", envir = e1)[2], get("a2", envir = e1)[2]),
@@ -478,6 +579,21 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
                   envir = e1)
                 assign("N", nrow(get("x", envir = e1)[[1]]),
                   envir = e1)
+                ## Retrieve point/line parameters for this burst and store
+                ## it in e1
+                ppark <- ppar
+                if (any(plist)) {
+                    for (k in (1:length(ppark))[plist])
+                        ppark[k] <- ppark[[k]][get("hoho", envir = e1)]
+                }
+                assign("ppark", ppark, envir = e1)
+                lpark <- lpar
+                if (any(llist)) {
+                    for (k in (1:length(lpark))[llist])
+                        lpark[k] <- lpark[[k]][get("hoho", envir = e1)]
+                }
+                assign("lpark", lpark, envir = e1)
+                ## End of modification
                 showz()
             }
             if (dsp == "t") {
@@ -681,8 +797,10 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), hscale = 1, vscale = 1,
                   infk <- get("info", envir = e1)[[get("hoho",
                     envir = e1)]][which(row.names(get("info",
                     envir = e1)[[get("hoho", envir = e1)]]) ==
-                    row.names(get("x", envir = e1)[[1]])[get("K", envir = e1)]), ]
-                  infk <- apply(infk, 2, function(x) if(is.numeric(x)) round(x, 3))
+                    row.names(get("x", envir = e1)[[1]])[get("K", envir = e1)]),
+                      , drop = FALSE]
+                  infk <- apply(infk, 2, function(x) ifelse(is.numeric(x),
+                    round(x, 3), x))
                   inftext <- paste(names(infk), as.character(infk), sep = ": ",
                     collapse = "; ")
                 }

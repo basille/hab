@@ -125,7 +125,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
     llist <- sapply(lpar, is.list)
     ## End of modification
     ## Parameter na.rm = TRUE/FALSE
-    if (na.rm == TRUE) {
+    if (na.rm) {
         ## Remove NAs from individual point/line parameters
         nas <- lapply(x, function(i) !is.na(i$x))
         names(nas) <- id(x)
