@@ -3,13 +3,17 @@
 \title{Interactive Display of Objects of Class \code{ltraj}}
 \usage{
 trajdyn(x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
-  vscale = 1, by = 1, only = Inf, recycle = TRUE, ppar = list(pch =
-  16), lpar = list(lwd = 2), nvar = NULL, display = c("guess", "windows",
-  "tk"), ...)
+  vscale = 1, addvec = 1, by = 1, only = Inf, recycle = TRUE,
+  ppar = list(pch = 16), lpar = list(lwd = 2), nvar = NULL,
+  display = c("guess", "windows", "tk"), ...)
 }
 \arguments{
   \item{na.rm}{Logical, whether to remove missing
   locations.}
+
+  \item{addvec}{Numeric, whether to hihglight the current
+  location (1, default), the current step (2) or nothing
+  (0).}
 
   \item{by}{The number of previous points/steps to
   increment at each step. Default is an increment of 1
