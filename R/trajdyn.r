@@ -56,6 +56,8 @@
 ##'
 ##' @title Interactive Display of Objects of Class \code{ltraj}
 ##' @param na.rm Logical, whether to remove missing locations.
+##' @param addvec Numeric, whether to hihglight the current location (1,
+##' default), the current step (2) or nothing (0).
 ##' @param by The number of previous points/steps to increment at each
 ##' step. Default is an increment of 1 point/step.
 ##' @param only The number of previous points/steps to
@@ -104,7 +106,7 @@
 ##' ## Use of `nvar` to dynamically fill in new data:
 ##' (newtraj <- trajdyn(puechcirc, nvar = "Var"))
 ##' }
-trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1, vscale = 1,
+trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1, vscale = 1, addvec = 1,
     by = 1, only = Inf, recycle = TRUE, ppar = list(pch = 16), lpar = list(lwd = 2),
     nvar = NULL, display = c("guess", "windows", "tk"), ...)
 {
@@ -203,8 +205,9 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
     assign("ajoubu", FALSE, envir = e1)
     assign("addpoints", TRUE, envir = e1)
     assign("addlines", TRUE, envir = e1)
-    ## Prepare the step vector status (FALSE by default)
-    assign("addvec", FALSE, envir = e1)
+    ## Prepare the step vector status (0: none, 1: point, 2: vector)
+    assign("addvec", 1, envir = e1)
+    ## End of modification
     assign("lim", TRUE, envir = e1)
     assign("buadd", burst, envir = e1)
     assign("K", 1, envir = e1)
@@ -305,15 +308,19 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
                 pch = 16, col = "red", cex = 1.7)
         iti <- unlist(get("x", envir = e1)[[1]][get("K", envir = e1),
             c("x", "y")])
-        points(iti[1], iti[2], col = "blue", pch = 16, cex = 1.4)
-        ## Add the step vector
-        if (get("addvec", envir = e1)) {
-            xx1 <- get("x", envir = e1)[[1]][get("K", envir = e1), "x"]
-            yy1 <- get("x", envir = e1)[[1]][get("K", envir = e1), "y"]
-            xx2 <- xx1 + get("x", envir = e1)[[1]][get("K", envir = e1), "dx"]
-            yy2 <- yy1 + get("x", envir = e1)[[1]][get("K", envir = e1), "dy"]
-            arrows(xx1, yy1, xx2, yy2, lwd = 3, length = .1, col = "blue")
+        ## Add the step point or vector
+        ## points(iti[1], iti[2], col = "blue", pch = 16, cex = 1.4)
+        vec <- get("addvec", envir = e1)
+        if (vec == 1) {
+            current <- get("x", envir = e1)[[1]][get("K", envir = e1), ]
+            points(current$x, current$y, col = "blue", pch = 16, cex = 1.4)
         }
+        if (vec == 2) {
+            current <- get("x", envir = e1)[[1]][get("K", envir = e1), ]
+            points(current$x, current$y, col = "blue", pch = 16, cex = 1.4)
+            arrows(current$x, current$y, current$x + current$dx, current$y + current$dy, lwd = 3, length = .1, col = "blue")
+        }
+        ## End of modification
         par(opar)
     }
     ## Remove the final \n
@@ -562,8 +569,7 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
         }
         ## Display the step vector
         if (key == "v") {
-            assign("addvec", !get("addvec", envir = e1),
-                envir = e1)
+            assign("addvec", ifelse(get("addvec", envir = e1) == 2, 0, get("addvec", envir = e1) + 1), envir = e1)
             showz()
         }
         if (key == "b") {
