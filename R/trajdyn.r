@@ -206,7 +206,7 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
     assign("addpoints", TRUE, envir = e1)
     assign("addlines", TRUE, envir = e1)
     ## Prepare the step vector status (0: none, 1: point, 2: vector)
-    assign("addvec", 1, envir = e1)
+    assign("addvec", addvec, envir = e1)
     ## End of modification
     assign("lim", TRUE, envir = e1)
     assign("buadd", burst, envir = e1)
