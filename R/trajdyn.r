@@ -639,6 +639,21 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
                   envir = e1)
                 assign("N", nrow(get("x", envir = e1)[[1]]),
                   envir = e1)
+                ## Retrieve point/line parameters for this burst and store
+                ## it in e1
+                ppark <- ppar
+                if (any(plist)) {
+                    for (k in (1:length(ppark))[plist])
+                        ppark[k] <- ppark[[k]][get("hoho", envir = e1)]
+                }
+                assign("ppark", ppark, envir = e1)
+                lpark <- lpar
+                if (any(llist)) {
+                    for (k in (1:length(lpark))[llist])
+                        lpark[k] <- lpark[[k]][get("hoho", envir = e1)]
+                }
+                assign("lpark", lpark, envir = e1)
+                ## End of modification
                 showz()
             }
         }

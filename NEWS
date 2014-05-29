@@ -6,6 +6,11 @@ NEW FEATURE
 * `trajdyn`: New parameter `addvec` to hihglight the current location, the
   current step or nothing.
 
+BUG FIX
+
+* `trajdyn`: Individual point/line parameters are changed when the burst is
+  changed (Linux only).
+
 
 hab 1.12
 ========
