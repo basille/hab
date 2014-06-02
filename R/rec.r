@@ -1,7 +1,8 @@
 ## rec
 ##
 ##' Modified version of \code{\link[adehabitatLT]{rec}} that keeps the
-##' original \code{row.names}.
+##' original \code{row.names}. Also throws an error if the \code{row.names}
+##' are different between the ltraj and its infolocs.
 ##'
 ##' @title Recalculates the descriptive parameters of a ltraj
 ##' @seealso See \code{\link[adehabitatLT]{rec}} for further
@@ -20,17 +21,22 @@ rec <- function (x, slsp = c("remove", "missing"))
         stop("x should be of class \"ltraj\"")
     lif <- infolocs(x)
     if (!is.null(lif)) {
+        ## Simply stop if row.names are different between ltraj and its
+        ## infolocs
         for (i in 1:length(x)) {
-            if (!all(row.names(x[[i]]) %in% row.names(lif[[i]]))) {
-                x[[i]] <- x[[i]][row.names(x[[i]]) %in% row.names(lif[[i]]),
-                  ]
-                attr(x[[i]], "infolocs") <- lif[[i]]
-            }
-            if (!all(row.names(lif[[i]]) %in% row.names(x[[i]]))) {
-                lif[[i]] <- lif[[i]][row.names(lif[[i]]) %in%
-                  row.names(x[[i]]), ]
-                attr(x[[i]], "infolocs") <- lif[[i]]
-            }
+        ##     if (!all(row.names(x[[i]]) %in% row.names(lif[[i]]))) {
+        ##         x[[i]] <- x[[i]][row.names(x[[i]]) %in%
+        ##           row.names(lif[[i]]), drop = FALSE]
+        ##         attr(x[[i]], "infolocs") <- lif[[i]]
+        ##     }
+        ##     if (!all(row.names(lif[[i]]) %in% row.names(x[[i]]))) {
+        ##         lif[[i]] <- lif[[i]][row.names(lif[[i]]) %in%
+        ##           row.names(x[[i]]), drop = FALSE]
+        ##         attr(x[[i]], "infolocs") <- lif[[i]]
+        ##     }
+	if (!all(row.names(lif[[i]]) == row.names(x[[i]])))
+             stop("The infolocs component should have the same row.names
+as the ltraj object")
         }
     }
     slsp <- match.arg(slsp)
