@@ -8,6 +8,8 @@ BUG FIX
 
 * `plot.ltraj`: Check the length of list parameters.
 
+* `plot.ltraj`: Use of 'adehabitatLT::id' to avoid conflicts.
+
 
 hab 1.13
 ========
