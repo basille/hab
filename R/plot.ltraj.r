@@ -122,6 +122,17 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
     ## Are there any lists in point/line parameters?
     plist <- sapply(ppar, is.list)
     llist <- sapply(lpar, is.list)
+    ## Check the length of list parameters
+    if (any(plist)) {
+        for (k in (1:length(ppar))[plist])
+            if (!isTRUE(all.equal(unlist(lapply(ppar[[k]], length)), unlist(lapply(x, nrow)), check.attributes = FALSE)))
+                stop("Point parameters for individual locations must have the same length as the corresponding burst")
+    }
+    if (any(llist)) {
+        for (k in (1:length(lpar))[llist])
+            if (!isTRUE(all.equal(unlist(lapply(lpar[[k]], length)), unlist(lapply(x, nrow)), check.attributes = FALSE)))
+                stop("Line parameters for individual steps must have the same length as the corresponding burst")
+    }
     ## End of modification
     ## Parameter na.rm = TRUE/FALSE
     if (na.rm) {

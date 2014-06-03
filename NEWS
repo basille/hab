@@ -6,6 +6,8 @@ BUG FIX
 * `rec`: Throws an error if the \code{row.names} are different between the
   ltraj and its infolocs.
 
+* `plot.ltraj`: Check the length of list parameters.
+
 
 hab 1.13
 ========
