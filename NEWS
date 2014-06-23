@@ -1,6 +1,10 @@
 hab 1.14
 ========
 
+NEW FEATURE
+
+* `subset`: Subsetting a ltraj
+
 BUG FIX
 
 * `rec`: Throws an error if the \code{row.names} are different between the
@@ -9,6 +13,10 @@ BUG FIX
 * `plot.ltraj`: Check the length of list parameters.
 
 * `plot.ltraj`: Use of 'adehabitatLT::id' to avoid conflicts.
+
+* `plot.ltraj`: Fixed bug on the use of `perani`.
+
+* `plot.ltraj`: Fixed row names in example.
 
 
 hab 1.13
