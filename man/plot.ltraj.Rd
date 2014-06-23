@@ -65,44 +65,49 @@ length equal to each trajectory. Such information can be based on
 }
 \examples{
 data(puechcirc)
-
+##'
 ## Point and line parameters
 plot(puechcirc)
 plot(puechcirc, ppar = list(pch = 2, cex = .5), lpar = list(lty = 2,
     col = grey(.5)))
-
+##'
 ## id/perani and mfrow
 plot(puechcirc, perani = FALSE)
 \dontrun{
 plot(puechcirc, perani = FALSE, mfrow = c(1, 2))}
 plot(puechcirc, id = "JE93", perani = FALSE)
-
+##'
 ## Using parameters for single steps
-infolocs(puechcirc) <- list(data.frame(col = sample(c("red",
-    "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
-    data.frame(col = sample(c("blue", "darkred"),
-        69, rep = TRUE), stringsAsFactors = FALSE),
-    data.frame(col = sample(c("darkgreen", "purple"),
-        66, rep = TRUE), stringsAsFactors = FALSE))
-
+info <- list(data.frame(col = sample(c("red",
+         "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
+         data.frame(col = sample(c("blue", "darkred"),
+             69, rep = TRUE), stringsAsFactors = FALSE),
+         data.frame(col = sample(c("darkgreen", "purple"),
+             66, rep = TRUE), stringsAsFactors = FALSE))
+info <- mapply(function(x, y) {
+    row.names(x) <- row.names(y)
+    return(x)
+}, info, puechcirc, SIMPLIFY = FALSE)
+infolocs(puechcirc) <- info
+##'
 ## Per burst (default)
 plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
     "col", simplify = TRUE)), lpar = list(col = infolocs(puechcirc,
     "col", simplify = TRUE)), na.rm = FALSE)
-
+##'
 ## Per animal
 plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
     "col", simplify = TRUE, perani = TRUE)), lpar = list(col = infolocs(puechcirc,
     "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE, perani = TRUE)
-
+##'
 ## Using a SpatialPixelsDataFrame
 data(puechabonsp)
-
+##'
 plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1])
 plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1],
     ppar = list(pch = 2, cex = .5), lpar = list(lty = 2, col = "white"),
     spixdfpar = list(col = gray((1:240)/256)))
-
+##'
 ## Using a SpatialPolygonsDataFrame
 cont <- getcontour(puechabonsp$map[,1])
 plot(puechcirc, spoldf = cont)
