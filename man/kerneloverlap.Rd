@@ -2,7 +2,8 @@
 \name{kerneloverlap}
 \alias{kerneloverlap}
 \alias{summary.kerneloverlap}
-\title{Spatial Interaction between Animals Monitored Using Radio-Tracking}
+\title{Spatial Interaction between Animals Monitored Using
+Radio-Tracking}
 \usage{
 kerneloverlap(x, method = c("HR", "PHR", "VI", "BA", "UDOI", "HD"),
   percent = 95, conditional = FALSE, ...)

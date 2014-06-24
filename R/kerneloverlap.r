@@ -5,7 +5,8 @@
 ##' \code{SpatialPointsDataFrame} or \code{estUDm} in the same
 ##' function.
 ##'
-##' @title Spatial Interaction between Animals Monitored Using Radio-Tracking
+##' @title Spatial Interaction between Animals Monitored Using
+##' Radio-Tracking
 ##'
 ##' @param x an object of class \code{SpatialPointsDataFrame}
 ##' containing only one column (which is a factor indicating the
@@ -158,7 +159,6 @@ kerneloverlap <- function(x, method = c("HR", "PHR", "VI", "BA",
 ##
 ##' @rdname kerneloverlap
 ##' @param object An array or matrix of class \code{kerneloverlap}
-##' @S3method summary kerneloverlap
 ##' @export
 summary.kerneloverlap <- function(object, ...)
 {

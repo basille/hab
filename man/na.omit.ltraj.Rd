@@ -3,7 +3,7 @@
 \alias{na.omit.ltraj}
 \title{Handle Missing Values in Objects of Class 'ltraj'}
 \usage{
-\method{na.omit}{ltraj}(object, rec = TRUE, ...)
+\method{na.omit}{ltraj}(object, rec = TRUE, complete.steps = FALSE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{ltraj}.}
@@ -23,7 +23,8 @@ A ltraj object, without missing locations.
 \examples{
 data(puechcirc)
 puechcirc
-na.omit(puechcirc)
+na.omit.ltraj(puechcirc)
+na.omit.ltraj(puechcirc, rec = FALSE, complete.steps = TRUE)
 }
 \author{
 Mathieu Basille \email{basille@ase-research.org}
