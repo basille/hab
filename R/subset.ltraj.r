@@ -1,5 +1,5 @@
 ##' Return subsets of a ltraj which meet conditions (over the descriptive
-##' parameters of the ltraj or is infolocs).
+##' parameters of the ltraj or its infolocs).
 ##'
 ##' @title Subsetting a ltraj
 ##' @param x A ltraj object.
@@ -7,7 +7,6 @@
 ##' missing values are taken as false.
 ##' @param rec Logical, whether to recompute the ltraj parameters or not
 ##' (default = FALSE).
-##' @S3method subset ltraj
 ##' @return A ltraj object.
 ##' @seealso See \code{\link[adehabitatLT]{which.ltraj}} to identify the
 ##' relocations fullfilling a condition.
@@ -28,9 +27,9 @@
 ##' infolocs(puechcirc) <- info
 ##'
 ##' ## Different subsets:
-##' (xsub1 <- subset(x, dist > 200, rec = FALSE))
-##' (xsub2 <- subset(x, C == 3, rec = TRUE))
-##' (xsub3 <- subset(x, C == 3, rec = FALSE))
+##' (xsub1 <- subset(puechcirc, dist > 200, rec = FALSE))
+##' (xsub2 <- subset(puechcirc, C == 3, rec = TRUE))
+##' (xsub3 <- subset(puechcirc, C == 3, rec = FALSE))
 subset.ltraj <- function (x, subset, rec = FALSE, ...)
 {
     ## Check that x is a ltraj
