@@ -1,11 +1,11 @@
 ## QIC
 ##
+##' Generic function calculating the Quasi-likelihood under Independence
+##' Criterion for one or several fitted model objects.
+##'
 ##' @title QIC: Quasi-likelihood under Independence Criterion
 ##' @param mod A \code{coxph} or \code{clogit} model.
 ##' @param ... Optionally more fitted model objects.
-##' @param details Logical, whether to provide detailed outputs
-##' (turned automatically to \code{TRUE} when several models are
-##' fitted).
 ##' @return If \code{details = FALSE}, simply returns the QIC. If
 ##' \code{details = TRUE}, returns a data frame presenting the QIC,
 ##' the quasi-likelihood, the number of observations, the number of
@@ -15,9 +15,15 @@
 ##' @author Mathieu Basille \email{basille@@ase-research.org} and
 ##' Thierry Duchesne
 ##' @export QIC
-##' @S3method QIC coxph
-QIC <- function(mod, ..., details = FALSE)
+QIC <- function(mod, ...)
+{
     UseMethod("QIC")
+}
+
+##' @rdname QIC
+##' @param details Logical, whether to provide detailed outputs
+##' (turned automatically to \code{TRUE} when several models are
+##' fitted).
 QIC.coxph <- function(mod, ..., details = FALSE)
 {
     ## If several models are provided

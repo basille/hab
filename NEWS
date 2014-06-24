@@ -1,3 +1,19 @@
+hab 1.15
+========
+
+NEW FEATURE
+
+* `na.omit.ltraj`: Argument `complete.steps` to keep only complete steps,
+  i.e. steps characterized by start and end points, with turning angle
+  (i.e. relative angle to the previous step).
+
+BUG FIX
+
+* Fixed namespaces and S3 methods.
+
+* `trajdyn`: Fixed example.
+
+
 hab 1.14
 ========
 

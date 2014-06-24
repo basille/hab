@@ -26,10 +26,14 @@
 ##' @author Mathieu Basille \email{basille@@ase-research.org}, with
 ##' the help of Terry Therneau and Guillaume Bastille-Rousseau
 ##' @export
-##' @S3method kfold coxph
 kfold <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     reproducible = TRUE, details = FALSE)
+{
     UseMethod("kfold")
+}
+
+
+##' @rdname kfold
 kfold.coxph <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     reproducible = TRUE, details = FALSE)
 {
