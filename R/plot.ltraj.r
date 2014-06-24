@@ -40,7 +40,6 @@
 ##' @param spotdfpar A list of arguments that allows the user to
 ##' modify SpatialPoints display, using any argument available to
 ##' \code{plot}. Default is \code{list(pch = 3, col = "darkgreen")}.
-##' @S3method plot ltraj
 ##' @seealso See \code{\link[adehabitatLT]{plot.ltraj}} for further
 ##' details on the function and all available arguments.
 ##' @author Modified by Mathieu Basille

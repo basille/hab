@@ -19,7 +19,7 @@ A ltraj object.
 }
 \description{
 Return subsets of a ltraj which meet conditions (over the descriptive
-parameters of the ltraj or is infolocs).
+parameters of the ltraj or its infolocs).
 }
 \examples{
 ## Load puechcirc data and add some infolocs:
@@ -36,9 +36,9 @@ info <- mapply(function(x, y) {
 infolocs(puechcirc) <- info
 
 ## Different subsets:
-(xsub1 <- subset(x, dist > 200, rec = FALSE))
-(xsub2 <- subset(x, C == 3, rec = TRUE))
-(xsub3 <- subset(x, C == 3, rec = FALSE))
+(xsub1 <- subset(puechcirc, dist > 200, rec = FALSE))
+(xsub2 <- subset(puechcirc, C == 3, rec = TRUE))
+(xsub3 <- subset(puechcirc, C == 3, rec = FALSE))
 }
 \author{
 Mathieu Basille \email{basille@ase-research.org}

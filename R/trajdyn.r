@@ -77,32 +77,38 @@
 ##' @examples
 ##' \dontrun{
 ##' data(puechcirc)
-##'
+##' ##'
 ##' ## Use of `by` and `only` to select the previous k points/steps:
 ##' trajdyn(puechcirc, by = 10, only = 20)
-##'
+##' ##'
 ##' ## Use of `ppar` and `lpar` globally:
 ##' trajdyn(puechcirc, ppar = list(col = "red"), lpar = list(col = "blue"))
-##'
+##' ##'
 ##' ## Create some random `infolocs`:
-##' infolocs(puechcirc) <- list(data.frame(col = sample(c("red",
-##'      "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
+##' info <- list(data.frame(col = sample(c("red", "grey"),
+##'          80, rep = TRUE), stringsAsFactors = FALSE),
 ##'      data.frame(col = sample(c("blue", "darkred"),
 ##'          69, rep = TRUE), stringsAsFactors = FALSE),
 ##'      data.frame(col = sample(c("darkgreen", "purple"),
 ##'          66, rep = TRUE), stringsAsFactors = FALSE))
-##'
+##' ## Watch the row names:
+##' info <- mapply(function(x, y) {
+##'     row.names(x) <- row.names(y)
+##'     return(x)
+##' }, info, puechcirc, SIMPLIFY = FALSE)
+##' infolocs(puechcirc) <- info
+##' ##'
 ##' ## Use the infolocs to color points and steps:
 ##' trajdyn(puechcirc, by = 1, only = 20, ppar = list(pch = 19,
 ##'     col = infolocs(puechcirc, "col", simplify = TRUE)),
 ##'     lpar = list(col = infolocs(puechcirc, "col", simplify = TRUE)))
-##'
+##' ##'
 ##' ## The same without removing the missing locations:
 ##' trajdyn(puechcirc, by = 1, only = 20, ppar = list(pch = 19,
 ##'     col = infolocs(puechcirc, "col", simplify = TRUE)),
 ##'     lpar = list(col = infolocs(puechcirc, "col", simplify = TRUE)),
 ##'     na.rm = FALSE)
-##'
+##' ##'
 ##' ## Use of `nvar` to dynamically fill in new data:
 ##' (newtraj <- trajdyn(puechcirc, nvar = "Var"))
 ##' }
