@@ -12,6 +12,10 @@
 trajectory (in particular dx, dy, and angles). Use \code{FALSE} with
 care.}
 
+\item{complete.steps}{Logical, whether to keep only complete steps,
+i.e. steps characterized by start and end points, and turning angle
+(i.e. relative angle to the previous step).}
+
 \item{...}{Further arguments not used.}
 }
 \value{
@@ -23,8 +27,9 @@ A ltraj object, without missing locations.
 \examples{
 data(puechcirc)
 puechcirc
-na.omit.ltraj(puechcirc)
-na.omit.ltraj(puechcirc, rec = FALSE, complete.steps = TRUE)
+na.omit(puechcirc)
+## Note the direct call to hab:::
+hab:::na.omit.ltraj(puechcirc, rec = FALSE, complete.steps = TRUE)
 }
 \author{
 Mathieu Basille \email{basille@ase-research.org}
