@@ -7,6 +7,9 @@
 ##' @param rec Logical, whether to recompute descriptive parameters of the
 ##' trajectory (in particular dx, dy, and angles). Use \code{FALSE} with
 ##' care.
+##' @param complete.steps Logical, whether to keep only complete steps,
+##' i.e. steps characterized by start and end points, and turning angle
+##' (i.e. relative angle to the previous step).
 ##' @param ... Further arguments not used.
 ##' @return A ltraj object, without missing locations.
 ##' @author Mathieu Basille \email{basille@@ase-research.org}

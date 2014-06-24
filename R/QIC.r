@@ -14,7 +14,7 @@
 ##' model weights.
 ##' @author Mathieu Basille \email{basille@@ase-research.org} and
 ##' Thierry Duchesne
-##' @export QIC
+##' @export
 QIC <- function(mod, ...)
 {
     UseMethod("QIC")
