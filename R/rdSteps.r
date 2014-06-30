@@ -28,7 +28,7 @@
 ##' reproducible with the use of a seed, otherwise new random step lengths
 ##' and turning angles are sampled at each call.
 ##' @return A data frame, with new columns \code{case} (1 for observed
-##' steps and 0 for random steps) and \code{strata} (an common integer for
+##' steps and 0 for random steps) and \code{strata} (a common integer for
 ##' paired observed and random steps).
 ##' @author Mathieu Basille \email{basille@@ase-research.org}
 ##' @export

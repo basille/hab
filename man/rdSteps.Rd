@@ -3,8 +3,8 @@
 \alias{rdSteps}
 \title{Draw random steps}
 \usage{
-rdSteps(x, nrs = 10, distMax = Inf, others = FALSE, simult = FALSE,
-  reproducible = FALSE)
+rdSteps(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
+  simult = FALSE, distMax = Inf, reproducible = FALSE)
 }
 \arguments{
 \item{x}{A ltraj object.}
@@ -12,9 +12,10 @@ rdSteps(x, nrs = 10, distMax = Inf, others = FALSE, simult = FALSE,
 \item{nrs}{The number of random steps to draw for each observed step
 (default = 10).}
 
-\item{distMax}{Only draw step lengths and turning angles using steps
-shorter than this threshold. Default is \code{Inf}, i.e. all steps are
-kept.}
+\item{rand.dis}{The random distributions for step lengths and turning
+angles to use. If \code{NULL} (default), it uses \code{x} as a basis;
+otherwise, another \code{ltraj} object must be provided, or a
+data.frame with columns "dist", "rel.angle" and "id".}
 
 \item{only.others}{Logical, draws step lengths and turning angles from
 all other individuals, excluding the current one.}
@@ -23,11 +24,17 @@ all other individuals, excluding the current one.}
 simultaneously, i.e. both measurements come from a single observed
 step, instead of being drawn independently.}
 
-\item{reproducible}{Logical,}
+\item{distMax}{Only draw step lengths and turning angles using steps
+shorter than this threshold. Default is \code{Inf}, i.e. all steps are
+kept.}
+
+\item{reproducible}{Logical. If \code{TRUE}, results are made
+reproducible with the use of a seed, otherwise new random step lengths
+and turning angles are sampled at each call.}
 }
 \value{
 A data frame, with new columns \code{case} (1 for observed
-steps and 0 for random steps) and \code{strata} (an common integer for
+steps and 0 for random steps) and \code{strata} (a common integer for
 paired observed and random steps).
 }
 \description{
@@ -44,16 +51,31 @@ all steps within a strata).
 \examples{
 ## Load the data
 data(puechcirc)
-
+##'
 ## Simple example to check the distributions of step lengths and turning
 ## angles
 bla <- rdSteps(puechcirc)
 boxplot(bla$rel.angle ~ bla$case)
 boxplot(bla$dist ~ bla$case)
 
-## Reproducibility
-head(rdSteps(puechcirc, reproducible = TRUE))
-head(rdSteps(puechcirc, reproducible = TRUE))
+## Reproducibility and alternative random distributions
+
+## 1) Default: using the same ltraj for the random distributions:
+bla <- rdSteps(puechcirc, reproducible = TRUE)
+
+## 2) Explicitly use the same ltraj for the random distributions:
+bli <- rdSteps(puechcirc, rand.dis = puechcirc, reproducible = TRUE)
+
+## Check that 2) is the same as 1)
+all.equal(bla, bli)
+
+## 3) Explicitly uses random distributions in a data.frame:
+rand <- subset(ld(puechcirc), !(is.na(x) | is.na(dx) | is.na(rel.angle)) &
+    dist <= Inf, select = c("dist", "rel.angle", "id"))
+blo <- rdSteps(puechcirc, rand.dis = rand, reproducible = TRUE)
+
+## Check that 3) is the same as 1)
+all.equal(bla, blo)
 }
 \author{
 Mathieu Basille \email{basille@ase-research.org}
