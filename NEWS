@@ -1,3 +1,11 @@
+hab 1.17
+========
+
+NEW FEATURE
+
+* `rdSteps`: New argument `rand.dis` to explicitly provide random distributions for step lengths and turning angles.
+
+
 hab 1.16
 ========
 
