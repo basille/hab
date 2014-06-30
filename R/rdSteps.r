@@ -12,15 +12,21 @@
 ##' @param x A ltraj object.
 ##' @param nrs The number of random steps to draw for each observed step
 ##' (default = 10).
-##' @param distMax Only draw step lengths and turning angles using steps
-##' shorter than this threshold. Default is \code{Inf}, i.e. all steps are
-##' kept.
+##' @param rand.dis The random distributions for step lengths and turning
+##' angles to use. If \code{NULL} (default), it uses \code{x} as a basis;
+##' otherwise, another \code{ltraj} object must be provided, or a
+##' data.frame with columns "dist", "rel.angle" and "id".
 ##' @param only.others Logical, draws step lengths and turning angles from
 ##' all other individuals, excluding the current one.
 ##' @param simult Logical, whether to draw step lengths and turning angles
 ##' simultaneously, i.e. both measurements come from a single observed
 ##' step, instead of being drawn independently.
-##' @param reproducible Logical,
+##' @param distMax Only draw step lengths and turning angles using steps
+##' shorter than this threshold. Default is \code{Inf}, i.e. all steps are
+##' kept.
+##' @param reproducible Logical. If \code{TRUE}, results are made
+##' reproducible with the use of a seed, otherwise new random step lengths
+##' and turning angles are sampled at each call.
 ##' @return A data frame, with new columns \code{case} (1 for observed
 ##' steps and 0 for random steps) and \code{strata} (an common integer for
 ##' paired observed and random steps).
@@ -29,18 +35,33 @@
 ##' @examples
 ##' ## Load the data
 ##' data(puechcirc)
-##'
+##' ##'
 ##' ## Simple example to check the distributions of step lengths and turning
 ##' ## angles
 ##' bla <- rdSteps(puechcirc)
 ##' boxplot(bla$rel.angle ~ bla$case)
 ##' boxplot(bla$dist ~ bla$case)
 ##'
-##' ## Reproducibility
-##' head(rdSteps(puechcirc, reproducible = TRUE))
-##' head(rdSteps(puechcirc, reproducible = TRUE))
-rdSteps <- function(x, nrs = 10, distMax = Inf, others = FALSE,
-    simult = FALSE, reproducible = FALSE)
+##' ## Reproducibility and alternative random distributions
+##'
+##' ## 1) Default: using the same ltraj for the random distributions:
+##' bla <- rdSteps(puechcirc, reproducible = TRUE)
+##'
+##' ## 2) Explicitly use the same ltraj for the random distributions:
+##' bli <- rdSteps(puechcirc, rand.dis = puechcirc, reproducible = TRUE)
+##'
+##' ## Check that 2) is the same as 1)
+##' all.equal(bla, bli)
+##'
+##' ## 3) Explicitly uses random distributions in a data.frame:
+##' rand <- subset(ld(puechcirc), !(is.na(x) | is.na(dx) | is.na(rel.angle)) &
+##'     dist <= Inf, select = c("dist", "rel.angle", "id"))
+##' blo <- rdSteps(puechcirc, rand.dis = rand, reproducible = TRUE)
+##'
+##' ## Check that 3) is the same as 1)
+##' all.equal(bla, blo)
+rdSteps <- function(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
+    simult = FALSE, distMax = Inf, reproducible = FALSE)
 {
     ## Check if ltraj
     if (!inherits(x, "ltraj"))
@@ -60,8 +81,22 @@ rdSteps <- function(x, nrs = 10, distMax = Inf, others = FALSE,
     xdf$strata <- 1:nrow(xdf)
     ## Prepare the empirical distributions of step lengths, turning angles,
     ## and the associated IDs (note that we only keep steps <= distMax)
-    empdis <- subset(xdf, dist <= distMax, select = c("dist",
-        "rel.angle", "id"))
+    ## If rand.dis is null, use the ltraj
+    if (is.null(rand.dis))
+        rddis <- subset(xdf, dist <= distMax, select = c("dist",
+            "rel.angle", "id"))
+    ## Otherwise, can be another ltraj
+    else if (inherits(rand.dis, "ltraj"))
+        rddis <- subset(ld(rand.dis), !(is.na(x) | is.na(dx) |
+            is.na(rel.angle)) & dist <= distMax, select = c("dist",
+            "rel.angle", "id"))
+    ## Or a data.frame with columns "dist", "rel.angle" and "id"
+    else if (inherits(rand.dis, "data.frame") & all(c("dist",
+        "rel.angle", "id") %in% names(rand.dis)))
+        rddis <- subset(rand.dis, dist <= distMax, select = c("dist",
+            "rel.angle", "id"))
+    ## Stop if not the above
+    else stop("If 'rand.dis' is provided, it must be a data.frame or a ltraj object (see help for details).")
     ## Split the data frame according to the ID
     xl <- split(xdf, xdf$id)
     ## Function to create a strata, i.e. random steps associated to a
@@ -105,12 +140,12 @@ rdSteps <- function(x, nrs = 10, distMax = Inf, others = FALSE,
     ## Function that works over each id
     rdId <- function(lti) {
         ## Check id, and remove it from the distributions
-        if (others)
-            empdis <- subset(empdis, id != lti$id[1])
+        if (only.others)
+            rddis <- subset(rddis, id != lti$id[1])
         ## Call rdStep on each line, bind the results together in a data
         ## frame
         return(do.call(rbind, lapply(1:nrow(lti), function(i)
-            rdStep(lti[i, ], dis = empdis, seed = i))))
+            rdStep(lti[i, ], dis = rddis, seed = i))))
     }
     ## Call rdId over the ltraj, bind the results together in a data frame
     return(do.call(rbind, lapply(xl, rdId)))
