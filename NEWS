@@ -5,6 +5,9 @@ NEW FEATURE
 
 * `rdSteps`: New argument `strata` to define strata names.
 
+* `rdSteps`: New argument `mask` to redraw steps that end outside of a
+ polygon.
+
 
 hab 1.17
 ========

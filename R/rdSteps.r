@@ -29,6 +29,13 @@
 ##' from 1 to the total number of steps (on every individuals) is used; if
 ##' \code{"row.names"}, the row names are used; otherwise the column
 ##' provided is used.
+##' @param mask A \code{SpatialPolygons} used to redraw steps that end
+##' outside of the polygon. Use with caution: there is absolutely no
+##' guarantee that the function is not caught in an endless loop (warnings
+##' are issued if there are long or very long loops). Note that it is
+##' assumed that steps are in the same projection as the mask (if it is not
+##' the case, project the mask first using
+##' \code{\link[rgdal]{spTransform}}).
 ##' @param reproducible Logical. If \code{TRUE}, results are made
 ##' reproducible with the use of a seed, otherwise new random step lengths
 ##' and turning angles are sampled at each call.
@@ -66,11 +73,16 @@
 ##' ## Check that 3) is the same as 1)
 ##' all.equal(bla, blo)
 rdSteps <- function(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
-    simult = FALSE, distMax = Inf, strata = NULL, reproducible = FALSE)
+    simult = FALSE, distMax = Inf, strata = NULL, mask = NULL,
+    reproducible = FALSE)
 {
-    ## Check if ltraj
+    ## Check if x is a ltraj
     if (!inherits(x, "ltraj"))
         stop("x should be an object of class ltraj")
+    ## Check if mask is a SpatialPolygons
+    if (!is.null(mask))
+        if (!inherits(mask, "SpatialPolygons"))
+            stop("mask should be an object of class SpatialPolygons")
     ## Convert the ltraj to a data frame, and only keep complete steps
     ## (shortcut for na.omit(complete.steps = TRUE))
     xdf <- subset(ld(x), !(is.na(x) | is.na(dx) | is.na(rel.angle)))
@@ -137,6 +149,61 @@ rdSteps <- function(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
         }
         ## Compute absolute angles
         alphard <- st$abs.angle - st$rel.angle + rhord
+        ## Redraw steps that fell outside of the mask
+        if (!is.null(mask)) {
+            ## Prepare the SpatialPoints (use projection of 'mask')
+            pts <- SpatialPoints(data.frame(x = st$x + cos(alphard) *
+                slrd, y = st$y + sin(alphard) * slrd),
+                proj4string = CRS(proj4string(mask)))
+            ## Check overlap with mask
+            pover <- pts %over% mask
+            ## Loop until there is no NAs in the overlap
+            loop <- 0
+            while (anyNA(pover)) {
+                ## Update the loop number
+                loop <- loop + 1
+                ## If loop == 100, print a warning
+                if (loop == 100) {
+                  cat("\nRedrawing steps outside of the mask may be caught in an endless loop (100 trials).\nStill running... Current step:\n\n")
+                  print(st)
+                }
+                ## If loop == 500, print a stronger warning
+                if (loop == 500) {
+                  cat("\nRedrawing steps outside of the mask may be caught in an endless loop (500 trials).\nConsider terminating. Current step:\n\n")
+                  print(st)
+                }
+                ## Increase the seed
+                if (reproducible) {
+                  seed <- seed + 1e5
+                  set.seed(seed)
+                }
+                ## Redraw step lengths and turning angles sampled
+                ## simultaneously (only those with NAs)
+                if (simult) {
+                  sp <- sample(1:nrow(dis), sum(is.na(pover)),
+                    replace = TRUE)
+                  slrd[is.na(pover)] <- dis$dist[sp]
+                  rhord[is.na(pover)] <- dis$rel.angle[sp]
+                }
+                ## Not simultaneously
+                else {
+                  ## Sample step lengths (only those with NAs)
+                  slrd[is.na(pover)] <- sample(dis$dist, sum(is.na(pover)),
+                    replace = TRUE)
+                  ## Sample turning angles (only those with NAs)
+                  rhord[is.na(pover)] <- sample(dis$rel.angle,
+                    sum(is.na(pover)), replace = TRUE)
+                }
+                ## Recompute absolute angles
+                alphard <- st$abs.angle - st$rel.angle + rhord
+                ## Prepare the SpatialPoints again
+                pts <- SpatialPoints(data.frame(x = st$x + cos(alphard) *
+                  slrd, y = st$y + sin(alphard) * slrd),
+                  proj4string = CRS(proj4string(mask)))
+                ## Check the overlap with mask again
+                pover <- pts %over% mask
+            }
+        }
         ## Prepare the random data frame
         rd <- st[rep(1, nrs), ]
         ## Compute dx as cos(abs.angle)*step length

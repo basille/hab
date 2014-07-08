@@ -4,7 +4,8 @@
 \title{Draw random steps}
 \usage{
 rdSteps(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
-  simult = FALSE, distMax = Inf, strata = NULL, reproducible = FALSE)
+  simult = FALSE, distMax = Inf, strata = NULL, mask = NULL,
+  reproducible = FALSE)
 }
 \arguments{
 \item{x}{A ltraj object.}
@@ -33,6 +34,14 @@ column \code{strata} is created. If \code{NULL}, a series of integer
 from 1 to the total number of steps (on every individuals) is used; if
 \code{"row.names"}, the row names are used; otherwise the column
 provided is used.}
+
+\item{mask}{A \code{SpatialPolygons} used to redraw steps that end
+outside of the polygon. Use with caution: there is absolutely no
+guarantee that the function is not caught in an endless loop (warnings
+are issued if there are long or very long loops). Note that it is
+assumed that steps are in the same projection as the mask (if it is not
+the case, project the mask first using
+\code{\link[rgdal]{spTransform}}).}
 
 \item{reproducible}{Logical. If \code{TRUE}, results are made
 reproducible with the use of a seed, otherwise new random step lengths
