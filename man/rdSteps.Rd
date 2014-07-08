@@ -4,7 +4,7 @@
 \title{Draw random steps}
 \usage{
 rdSteps(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
-  simult = FALSE, distMax = Inf, reproducible = FALSE)
+  simult = FALSE, distMax = Inf, strata = NULL, reproducible = FALSE)
 }
 \arguments{
 \item{x}{A ltraj object.}
@@ -28,14 +28,20 @@ step, instead of being drawn independently.}
 shorter than this threshold. Default is \code{Inf}, i.e. all steps are
 kept.}
 
+\item{strata}{Character. How to name the stratas. In all cases, a new
+column \code{strata} is created. If \code{NULL}, a series of integer
+from 1 to the total number of steps (on every individuals) is used; if
+\code{"row.names"}, the row names are used; otherwise the column
+provided is used.}
+
 \item{reproducible}{Logical. If \code{TRUE}, results are made
 reproducible with the use of a seed, otherwise new random step lengths
 and turning angles are sampled at each call.}
 }
 \value{
 A data frame, with new columns \code{case} (1 for observed
-steps and 0 for random steps) and \code{strata} (a common integer for
-paired observed and random steps).
+steps and 0 for random steps) and \code{strata} (a unique value for
+each set of paired observed and random steps).
 }
 \description{
 Draw random steps from a ltraj object using empirical distributions of

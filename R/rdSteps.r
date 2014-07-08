@@ -24,12 +24,17 @@
 ##' @param distMax Only draw step lengths and turning angles using steps
 ##' shorter than this threshold. Default is \code{Inf}, i.e. all steps are
 ##' kept.
+##' @param strata Character. How to name the stratas. In all cases, a new
+##' column \code{strata} is created. If \code{NULL}, a series of integer
+##' from 1 to the total number of steps (on every individuals) is used; if
+##' \code{"row.names"}, the row names are used; otherwise the column
+##' provided is used.
 ##' @param reproducible Logical. If \code{TRUE}, results are made
 ##' reproducible with the use of a seed, otherwise new random step lengths
 ##' and turning angles are sampled at each call.
 ##' @return A data frame, with new columns \code{case} (1 for observed
-##' steps and 0 for random steps) and \code{strata} (a common integer for
-##' paired observed and random steps).
+##' steps and 0 for random steps) and \code{strata} (a unique value for
+##' each set of paired observed and random steps).
 ##' @author Mathieu Basille \email{basille@@ase-research.org}
 ##' @export
 ##' @examples
@@ -61,7 +66,7 @@
 ##' ## Check that 3) is the same as 1)
 ##' all.equal(bla, blo)
 rdSteps <- function(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
-    simult = FALSE, distMax = Inf, reproducible = FALSE)
+    simult = FALSE, distMax = Inf, strata = NULL, reproducible = FALSE)
 {
     ## Check if ltraj
     if (!inherits(x, "ltraj"))
@@ -77,8 +82,20 @@ rdSteps <- function(x, nrs = 10, rand.dis = NULL, only.others = FALSE,
     ## Stop if 'strata' already exist
     if (!is.null(xdf$strata))
         stop("The variable 'strata' already exists in the ltraj.")
-    ## strata = 1:nrow(xdf) for observed steps
-    xdf$strata <- 1:nrow(xdf)
+    ## If 'strata != NULL'
+    if (!is.null(strata)) {
+        ## If "row.names", use the row names
+        if (strata == "row.names")
+            xdf$strata <- row.names(xdf)
+        ## Otherwise, use the column provided, but check uniqueness
+        else {
+            if (any(duplicated(xdf[strata])))
+                stop("The variable 'strata' provided has duplicated values.")
+            xdf$strata <- xdf[, strata]
+        }
+    }
+    ## Else, strata = 1:nrow(xdf) for observed steps
+    else xdf$strata <- 1:nrow(xdf)
     ## Prepare the empirical distributions of step lengths, turning angles,
     ## and the associated IDs (note that we only keep steps <= distMax)
     ## If rand.dis is null, use the ltraj

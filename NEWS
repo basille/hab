@@ -1,3 +1,11 @@
+hab 1.18
+========
+
+NEW FEATURE
+
+* `rdSteps`: New argument `strata` to define strata names.
+
+
 hab 1.17
 ========
 
