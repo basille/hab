@@ -1,3 +1,11 @@
+hab 1.19
+========
+
+NEW FEATURE
+
+* `makeStep`: Define sequences of a trajectory.
+
+
 hab 1.18
 ========
 

@@ -43,7 +43,7 @@ this), and the case and strata should correspond to that order.
 It is only necessary to provide \code{nclust} to get at least that
 many clusters (if possible). The argument \code{nloc} can be set
 instead, if one wants exactly a number of successive steps in a
-cluster.
+cluster (much faster computation).
 }
 \examples{
 ## case (1 observed + 9 random)

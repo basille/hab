@@ -10,7 +10,7 @@
 ##' It is only necessary to provide \code{nclust} to get at least that
 ##' many clusters (if possible). The argument \code{nloc} can be set
 ##' instead, if one wants exactly a number of successive steps in a
-##' cluster.
+##' cluster (much faster computation).
 ##' @title Create independent clusters
 ##' @param seq A numeric, indicating the continuous sequences of
 ##' steps. See Details.
@@ -100,6 +100,9 @@ makeCluster <- function(seq, strata, case, ndrop, nclust = NULL,
     else {
         ## Automatic approximate 'nstep'
         nstep <- floor(sum(case)/(nclust)) - ndrop
+        ## If `nstep` is smaller than 1, use 1 (max number of clusters)
+        if (nstep < 1)
+            nstep <- 1
         clust <- cluster(seq = seq, strata = strata, case = case,
             ndrop = ndrop, nstep = nstep)
         ## If the number of clusters is equal or greater than the
