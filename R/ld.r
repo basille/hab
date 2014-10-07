@@ -145,9 +145,8 @@ ld <- function(ltraj, strict = TRUE)
         stop("ltraj should be of class ltraj")
     ## 'strict = TRUE' corresponds to the regular 'ld' function
     if (strict) {
-        ## Note the use of 'adehabitatLT::' to ensure the use of
-        ## the 'id' function from this package, and avoid
-        ## conflicts (e.g. with 'plyr::id')
+        ## Note the use of 'adehabitatLT::id' to avoid conflicts with
+        ## other packages (e.g. with 'plyr::id')
         iidd <- rep(adehabitatLT::id(ltraj), sapply(ltraj, nrow))
         bur <- rep(burst(ltraj), sapply(ltraj, nrow))
         inf <- infolocs(ltraj)
