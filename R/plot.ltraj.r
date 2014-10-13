@@ -7,18 +7,29 @@
 ##' \code{SpatialPoints(DataFrame)} in the background.
 ##'
 ##' It is possible to use point and line parameters globally for every
-##' trajectory displayed. In this case, \code{ppar} and \code{lpar} need
-##' just be a list of graphical parameters, such as \code{list(pch = 21,
-##' col = "black", bg = "white")}. It is also possible to use parameters
-##' for single steps, using as graphical parameter a list of vectors of
+##' trajectory displayed. In this case, \code{ppar} and \code{lpar}
+##' need just be a list of graphical parameters, such as
+##' \code{list(pch = 21, col = "black", bg = "white")}. It is also
+##' possible to use parameters for single bursts or individual, using
+##' atomic vectors with the same numbers of named elements than
+##' bursts/id, such as \code{list(col = c(b1 = "blue", b2 =
+##' "red"))}. Finally, it is also possible to use parameters for
+##' single steps, using as graphical parameter a list of vectors of
 ##' length equal to each trajectory. Such information can be based on
-##' \code{infolocs}, see Example.
+##' \code{infolocs}, see Examples.
 ##'
 ##' @title Graphical Display of an Object of Class "ltraj"
+##' @param by Character, replaces \code{perani}. Either \code{"burst"}
+##' (identical to \code{perani = FALSE}), \code{"id"} (identical to
+##' \code{perani = TRUE}), or \code{"none"} to plot all bursts at
+##' once.
 ##' @param na.rm Logical, whether to remove missing locations.
 ##' @param spotdf An object of class \code{SpatialPoints}.
 ##' @param center Logical, whether to center each plot around the
 ##' current burst (default = \code{FALSE}).
+##' @param box Logical, whether to add a \code{box} after plotting
+##' each individual plot (useful when a map overlaps the plot
+##' borders, default = \code{FALSE}).
 ##' @param mfrow A vector of the form \code{c(nr, nc)}, which allows
 ##' the user to define the numbers of rows (\code{nr}) and columns
 ##' (\code{nc}) in the device (the default uses
@@ -47,18 +58,24 @@
 ##' @export
 ##' @examples
 ##' data(puechcirc)
-##' ##'
+##'
 ##' ## Point and line parameters
 ##' plot(puechcirc)
 ##' plot(puechcirc, ppar = list(pch = 2, cex = .5), lpar = list(lty = 2,
 ##'     col = grey(.5)))
-##' ##'
-##' ## id/perani and mfrow
-##' plot(puechcirc, perani = FALSE)
-##' \dontrun{
-##' plot(puechcirc, perani = FALSE, mfrow = c(1, 2))}
-##' plot(puechcirc, id = "JE93", perani = FALSE)
-##' ##'
+##' ## By burst
+##' plot(puechcirc, ppar = list(col = c(CH930824 = "blue", CH930827 = "green",
+##'     JE930827 = "red"), pch = 20), lpar = list(col = c(CH930824 = "blue",
+##'     CH930827 = "green", JE930827 = "red")))
+##'
+##' ## Parameter 'by', 'mfrow' and 'id'
+##' plot(puechcirc, by = "id")
+##' plot(puechcirc, by = "id", mfrow = c(1, 2))
+##' plot(puechcirc, id = "JE93")
+##' plot(puechcirc, by = "none", ppar = list(col = c(CH930824 = "blue",
+##'     CH930827 = "green", JE930827 = "red"), pch = 20), lpar = list(col =
+##'     c(CH930824 = "blue", CH930827 = "green", JE930827 = "red")))
+##'
 ##' ## Using parameters for single steps
 ##' info <- list(data.frame(col = sample(c("red",
 ##'          "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
@@ -71,25 +88,25 @@
 ##'     return(x)
 ##' }, info, puechcirc, SIMPLIFY = FALSE)
 ##' infolocs(puechcirc) <- info
-##' ##'
-##' ## Per burst (default)
+##'
+##' ## By burst (default)
 ##' plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
 ##'     "col", simplify = TRUE)), lpar = list(col = infolocs(puechcirc,
 ##'     "col", simplify = TRUE)), na.rm = FALSE)
-##' ##'
-##' ## Per animal
-##' plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
+##'
+##' ## By animal
+##' plot(puechcirc, by = "id", ppar = list(pch = 19, col = infolocs(puechcirc,
 ##'     "col", simplify = TRUE, perani = TRUE)), lpar = list(col = infolocs(puechcirc,
-##'     "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE, perani = TRUE)
-##' ##'
+##'     "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE)
+##'
 ##' ## Using a SpatialPixelsDataFrame
 ##' data(puechabonsp)
-##' ##'
-##' plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1])
-##' plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1],
+##'
+##' plot(puechcirc, spixdf = puechabonsp$map[,1])
+##' plot(puechcirc, spixdf = puechabonsp$map[,1],
 ##'     ppar = list(pch = 2, cex = .5), lpar = list(lty = 2, col = "white"),
 ##'     spixdfpar = list(col = gray((1:240)/256)))
-##' ##'
+##'
 ##' ## Using a SpatialPolygonsDataFrame
 ##' cont <- getcontour(puechabonsp$map[,1])
 ##' plot(puechcirc, spoldf = cont)
@@ -97,14 +114,16 @@
 ##'     lpar = list(lty = 2, col = grey(.5)), spoldfpar = list(col = "cornsilk",
 ##'         border = grey(.5)))
 plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
-    adehabitatLT::burst(x), na.rm = TRUE, spixdf = NULL, spoldf = NULL,
-    spotdf = NULL, xlim = NULL, ylim = NULL, center = FALSE,
-    addpoints = TRUE, addlines = TRUE, perani = FALSE, final = TRUE,
-    mfrow, ppar = list(pch = 21, col = "black", bg = "white"),
+    adehabitatLT::burst(x), by = c("burst", "id", "none"), na.rm = TRUE,
+    spixdf = NULL, spoldf = NULL, spotdf = NULL, xlim = NULL, ylim = NULL,
+    center = FALSE, addpoints = TRUE, addlines = TRUE, box = FALSE,
+    final = TRUE, mfrow, ppar = list(pch = 21, col = "black", bg = "white"),
     lpar = list(), spixdfpar = list(col = gray((240:1)/256)),
     spoldfpar = list(col = "green"), spotdfpar = list(pch = 3,
         col = "darkgreen"), ...)
 {
+    ## Match the 'by' argument
+    by <- match.arg(by)
     ## Check the SpatialPoints(DataFrame)
     if (!is.null(spotdf)) {
         if (!inherits(spotdf, "SpatialPoints"))
@@ -123,32 +142,71 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
         stop("x should be an object of class ltraj")
     x <- x[id = id]
     x <- x[burst = burst]
-    ## Are there any lists in point/line parameters?
+    ## Are there any atomic vectors of length > 1 or lists in
+    ## point/line parameters?
+    patom <- sapply(ppar, function(x) is.atomic(x) & length(x) > 1)
+    latom <- sapply(lpar, function(x) is.atomic(x) & length(x) > 1)
     plist <- sapply(ppar, is.list)
     llist <- sapply(lpar, is.list)
-    ## Check the length of list parameters
-    if (any(plist)) {
-        if (perani) {
-            for (k in (1:length(ppar))[plist])
-                if (!isTRUE(all.equal(unlist(lapply(ppar[[k]], length)), unlist(lapply(bindltraj(x), nrow)), check.attributes = FALSE)))
-                    stop("Point parameters for individual locations must have the same length as the corresponding burst")
+    ## Check the length of atomic and list parameters (either 1 or the
+    ## length of the burst)
+    ## 1) Point atomics
+    if (any(patom)) {
+        if (by == "id") {
+            for (k in (1:length(ppar))[patom])
+                if (!isTRUE(all.equal(sapply(ppar[[1]], length),
+                    rep(1, length(unique(id(x)))), check.attributes = FALSE)))
+                    stop("Point parameters for individual locations must be unique per burst or have the same length as the corresponding burst")
         }
-        else {
-            for (k in (1:length(ppar))[plist])
-                if (!isTRUE(all.equal(unlist(lapply(ppar[[k]], length)), unlist(lapply(x, nrow)), check.attributes = FALSE)))
-                    stop("Point parameters for individual locations must have the same length as the corresponding burst")
+        else if (by == "burst") {
+            for (k in (1:length(ppar))[patom])
+                if (!isTRUE(all.equal(sapply(ppar[[k]], length),
+                    rep(1, length(x)), check.attributes = FALSE)))
+                    stop("Point parameters for individual locations must be unique per burst or have the same length as the corresponding burst")
         }
     }
+    ## Line atomics
+    if (any(latom)) {
+        if (by == "id") {
+            for (k in (1:length(lpar))[latom])
+                if (!isTRUE(all.equal(sapply(lpar[[1]], length),
+                    rep(1, length(unique(id(x)))), check.attributes = FALSE)))
+                    stop("Line parameters for individual locations must be unique per burst or have the same length as the corresponding burst")
+        }
+        else if (by == "burst") {
+            for (k in (1:length(lpar))[latom])
+                if (!isTRUE(all.equal(sapply(lpar[[k]], length),
+                    rep(1, length(x)), check.attributes = FALSE)))
+                    stop("Point parameters for individual locations must be unique per burst or have the same length as the corresponding burst")
+        }
+    }
+    ## Point lists
+    if (any(plist)) {
+        if (by == "id") {
+            for (k in (1:length(ppar))[plist])
+                if (!isTRUE(all.equal(unlist(lapply(ppar[[k]], length)),
+                    unlist(lapply(bindltraj(x), nrow)), check.attributes = FALSE)))
+                    stop("Point parameters for individual locations must be unique per burst or have the same length as the corresponding burst")
+        }
+        else if (by == "burst") {
+            for (k in (1:length(ppar))[plist])
+                if (!(isTRUE(all.equal(unlist(lapply(ppar[[k]], length)),
+                    unlist(lapply(x, nrow)), check.attributes = FALSE))))
+                    stop("Point parameters for individual locations must be unique per burst or have the same length as the corresponding burst")
+        }
+    }
+    ## Line lists
     if (any(llist)) {
-        if (perani)
-            {
+        if (by == "id") {
             for (k in (1:length(lpar))[llist])
-                if (!isTRUE(all.equal(unlist(lapply(lpar[[k]], length)), unlist(lapply(bindltraj(x), nrow)), check.attributes = FALSE)))
+                if (!isTRUE(all.equal(unlist(lapply(lpar[[k]], length)),
+                    unlist(lapply(bindltraj(x), nrow)), check.attributes = FALSE)))
                     stop("Line parameters for individual steps must have the same length as the corresponding burst")
         }
-        else {
+        else if (by == "burst") {
             for (k in (1:length(lpar))[llist])
-                if (!isTRUE(all.equal(unlist(lapply(lpar[[k]], length)), unlist(lapply(x, nrow)), check.attributes = FALSE)))
+                if (!isTRUE(all.equal(unlist(lapply(lpar[[k]], length)),
+                    unlist(lapply(x, nrow)), check.attributes = FALSE)))
                     stop("Line parameters for individual steps must have the same length as the corresponding burst")
         }
     }
@@ -189,35 +247,40 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
     uu <- lapply(x, function(i) {
         i[, c("x", "y")]
     })
-    if (!perani)
-        idc <- "burst"
-    else idc <- "id"
+    ## idc replaced by 'by'
+    ## if (!perani)
+    ##     idc <- "burst"
+    ## else idc <- "id"
+    ## !!!
     id <- unique(unlist(lapply(x, function(i) {
-        attr(i, idc)
+        attr(i, ifelse(by == "none", "burst", by))
     })))
     ## If more than one plot, force margins to the minimum, otherwise,
     ## use user specific margins
     ## if (length(id) > 1)
     ##     opar <- par(mar = c(0.1, 0.1, 2, 0.1), mfrow = n2mfrow(length(id)))
-    if (length(id) > 1)
+    if (length(id) > 1 & !(by == "none"))
         mar = c(0.1, 0.1, 2, 0.1)
     else mar = par("mar")
-    ## Allows user interaction with 'mfrow'
+    ## Allows user interaction with 'mfrow' (but 'mfrow = c(1, 1)' if
+    ## 'by == "none"')
     if (missing(mfrow)) {
         if (length(id) > 12)
             mfrow <- c(3, 4)
         else mfrow <- n2mfrow(length(id))
     }
+    if (by == "none")
+        mfrow <- c(1, 1)
     ## If more plots than allowed in the graphic windows, use 'ask =
     ## TRUE'
-    if (length(id) > prod(mfrow))
+    if (length(id) > prod(mfrow) & !(by == "none"))
         ask <- TRUE
     else ask <- par("ask")
     opar <- par(mfrow = mfrow, mar = mar, ask = ask)
     on.exit(par(opar))
     ## End of modification
     if (is.null(xlim)) {
-        if (perani) {
+        if (by == "id") {
             ## Note the use of 'adehabitatLT::' to ensure the use of the
             ## 'id' function from this package, and avoid conflicts
             ## (e.g. with 'plyr::id')
@@ -245,7 +308,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
             }
             ## End of modification
         }
-        else {
+        else if (by == "burst") {
             ## If center, 'xlim' centered around the range of x
             ## maxxl <- max(unlist(lapply(x, function(ki) diff(range(ki$x)))))
             ## xlim <- lapply(x, function(ki) c(min(ki$x), min(ki$x) +
@@ -266,14 +329,21 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
                   na.rm = TRUE)
                 xlim <- lapply(x, function(i) xrange)
             }
-            ## End of modification
         }
+        ## Else the same for all
+        else if (by == "none") {
+            ## Allows for NAs
+            xrange <- range(unlist(lapply(x, function(i) i$x)),
+                na.rm = TRUE)
+            xlim <- lapply(x, function(i) xrange)
+        }
+        ## End of modification
     }
     else {
         xlim <- split(rep(xlim, length(id)), gl(length(id), 2))
     }
     if (is.null(ylim)) {
-        if (perani) {
+        if (by == "id") {
             ## Note the use of 'adehabitatLT::' to ensure the use of the
             ## 'id' function from this package, and avoid conflicts
             ## (e.g. with 'plyr::id')
@@ -301,7 +371,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
             }
             ## End of modification
         }
-        else {
+        else if (by == "burst") {
             ## If center, 'ylim' centered around the range of y
             ## maxyl <- max(unlist(lapply(x, function(ki) diff(range(ki$y)))))
             ## ylim <- lapply(x, function(ki) c(min(ki$y), min(ki$y) +
@@ -322,27 +392,116 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
                   na.rm = TRUE)
                 ylim <- lapply(x, function(i) yrange)
             }
-            ## End of modification
         }
+        ## Else the same for all
+        else if (by == "none") {
+            ## Allows for NAs
+            yrange <- range(unlist(lapply(x, function(i) i$y)),
+                na.rm = TRUE)
+            ylim <- lapply(x, function(i) yrange)
+        }
+        ## End of modification
     }
     else {
         ylim <- split(rep(ylim, length(id)), gl(length(id), 2))
     }
     names(xlim) <- id
     names(ylim) <- id
-    for (i in id) {
+    ## Ugly hack in case of a unique plot
+    if (by == "none") {
+        ## Plot of the spixdf using image
+        if (!is.null(spixdf))
+            do.call(image, c(list(spixdf, xlim = xlim[1][[1]],
+                  ylim = ylim[1][[1]]), spixdfpar))
+        else
+            plot(1, 1, type = "n", asp = 1, xlim = xlim[1][[1]],
+                  ylim = ylim[1][[1]], ...)
+        ## Plot of the spoldf
+        if (!is.null(spoldf))
+            do.call(plot, c(list(spoldf, add = TRUE), spoldfpar))
+        ## Plot of the spotdf
+        if (!is.null(spotdf))
+            do.call(points, c(list(spotdf), spotdfpar))
+        ## And all trajectories now
+        for (i in id) {
+            ## ppark for individual point display parameters
+            ppark <- ppar
+            if (any(plist)) {
+                for (k in (1:length(ppark))[plist])
+                    ppark[k] <- ppark[[k]][i]
+            }
+            if (any(patom)) {
+                for (k in (1:length(ppark))[patom])
+                    ppark[k] <- ppark[[k]][i]
+            }
+            ## End of modification
+            ## lpark for individual line display parameters
+            lpark <- lpar
+            if (any(llist))
+                for (k in (1:length(lpark))[llist])
+                    lpark[k] <- lpark[[k]][i]
+            if (any(latom)) {
+                for (k in (1:length(lpark))[latom])
+                    lpark[k] <- lpark[[k]][i]
+            }
+            ## End of modification
+            ## The box needs to be drawn after the polygon if one is
+            ## added, otherwise the polygon covers it. Probably easier to
+            ## draw one box in every case after all other graphical
+            ## functions.
+            ## if (length(id) > 1)
+            ##     box()
+            ## End of modification
+            if (addlines) {
+                ## Allows line modification
+                ## lines(x[burst = i][[1]]$x, x[burst = i][[1]]$y)
+                                        #do.call(lines, c(list(x = x[burst = i][[1]]$x,
+                                        #  y = x[burst = i][[1]]$y), lpar))
+                do.call(segments, c(list(x0 = x[burst = i][[1]]$x,
+                                         y0 = x[burst = i][[1]]$y, x1 = x[burst = i][[1]]$x +
+                                             x[burst = i][[1]]$dx, y1 = x[burst = i][[1]]$y +
+                                                 x[burst = i][[1]]$dy), lpark))
+                ## End of modification
+            }
+            if (addpoints) {
+                ## Allows point modification
+                ## points(x[burst = i][[1]]$x, x[burst = i][[1]]$y,
+                ##   pch = 21, col = "black", bg = "white")
+                do.call(points, c(list(x = x[burst = i][[1]]$x,
+                                       y = x[burst = i][[1]]$y), ppark))
+                ## End of modification
+            }
+            if (final) {
+                points(x[burst = i][[1]]$x[c(1, length(x[burst = i][[1]]$x))],
+                       x[burst = i][[1]]$y[c(1, length(x[burst = i][[1]]$y))],
+                       pch = c(2, 14), col = c("blue", "red"), cex = 2,
+                       lwd = 2)
+            }
+            ## Creates a 'box' if necessary
+            if (box)
+                box()
+            ## End of modification
+        }
+    }
+    ## Else if by == "burst" or "id", normal behavior
+    else for (i in id) {
         ## ppark for individual point display parameters
         ppark <- ppar
-        if (any(plist)) {
+        if (any(plist))
             for (k in (1:length(ppark))[plist])
                 ppark[k] <- ppark[[k]][i]
-        }
+        if (any(patom))
+            for (k in (1:length(ppark))[patom])
+                ppark[k] <- ppark[[k]][i]
         ## End of modification
         ## lpark for individual line display parameters
         lpark <- lpar
         if (any(llist))
-          for (k in (1:length(lpark))[llist])
-            lpark[k] <- lpark[[k]][i]
+            for (k in (1:length(lpark))[llist])
+                lpark[k] <- lpark[[k]][i]
+        if (any(latom))
+            for (k in (1:length(lpark))[latom])
+                lpark[k] <- lpark[[k]][i]
         ## End of modification
         if (!is.null(spixdf)) {
             ## In case of 'mfrow = c(1, 1)' (i.e. one plot per window)
@@ -401,7 +560,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
         }
         ## End of modification
         if (addlines) {
-            if (idc == "burst") {
+            if (by == "burst") {
                 ## Allows line modification
                 ## lines(x[burst = i][[1]]$x, x[burst = i][[1]]$y)
                 #do.call(lines, c(list(x = x[burst = i][[1]]$x,
@@ -428,7 +587,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
             }
         }
         if (addpoints) {
-            if (idc == "burst") {
+            if (by == "burst") {
                 ## Allows point modification
                 ## points(x[burst = i][[1]]$x, x[burst = i][[1]]$y,
                 ##   pch = 21, col = "black", bg = "white")
@@ -452,7 +611,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
             }
         }
         if (final) {
-            if (idc == "burst") {
+            if (by == "burst") {
                 points(x[burst = i][[1]]$x[c(1, length(x[burst = i][[1]]$x))],
                   x[burst = i][[1]]$y[c(1, length(x[burst = i][[1]]$y))],
                   pch = c(2, 14), col = c("blue", "red"), cex = 2,
@@ -467,8 +626,9 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
                 }
             }
         }
-        ## Creates a 'box' in every case
-        box()
+        ## Creates a 'box' if necessary
+        if (box)
+            box()
         ## End of modification
     }
     if (length(id) > 1)

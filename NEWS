@@ -1,3 +1,11 @@
+hab 1.19.2
+==========
+
+ENHANCEMENT
+
+* `plot.ltraj`: New argument `by` that replaces `perani`, and allows the plot of all bursts at once.
+
+
 hab 1.19.1
 ==========
 

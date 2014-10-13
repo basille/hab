@@ -4,21 +4,30 @@
 \title{Graphical Display of an Object of Class "ltraj"}
 \usage{
 plot.ltraj(x, id = unique(adehabitatLT::id(x)),
-  burst = adehabitatLT::burst(x), na.rm = TRUE, spixdf = NULL,
-  spoldf = NULL, spotdf = NULL, xlim = NULL, ylim = NULL,
-  center = FALSE, addpoints = TRUE, addlines = TRUE, perani = FALSE,
-  final = TRUE, mfrow, ppar = list(pch = 21, col = "black", bg = "white"),
-  lpar = list(), spixdfpar = list(col = gray((240:1)/256)),
-  spoldfpar = list(col = "green"), spotdfpar = list(pch = 3, col =
-  "darkgreen"), ...)
+  burst = adehabitatLT::burst(x), by = c("burst", "id", "none"),
+  na.rm = TRUE, spixdf = NULL, spoldf = NULL, spotdf = NULL,
+  xlim = NULL, ylim = NULL, center = FALSE, addpoints = TRUE,
+  addlines = TRUE, box = FALSE, final = TRUE, mfrow, ppar = list(pch =
+  21, col = "black", bg = "white"), lpar = list(), spixdfpar = list(col =
+  gray((240:1)/256)), spoldfpar = list(col = "green"), spotdfpar = list(pch
+  = 3, col = "darkgreen"), ...)
 }
 \arguments{
+\item{by}{Character, replaces \code{perani}. Either \code{"burst"}
+(identical to \code{perani = FALSE}), \code{"id"} (identical to
+\code{perani = TRUE}), or \code{"none"} to plot all bursts at
+once.}
+
 \item{na.rm}{Logical, whether to remove missing locations.}
 
 \item{spotdf}{An object of class \code{SpatialPoints}.}
 
 \item{center}{Logical, whether to center each plot around the
 current burst (default = \code{FALSE}).}
+
+\item{box}{Logical, whether to add a \code{box} after plotting
+each individual plot (useful when a map overlaps the plot
+borders, default = \code{FALSE}).}
 
 \item{mfrow}{A vector of the form \code{c(nr, nc)}, which allows
 the user to define the numbers of rows (\code{nr}) and columns
@@ -56,27 +65,37 @@ maps are the same for each burst (see parameter
 }
 \details{
 It is possible to use point and line parameters globally for every
-trajectory displayed. In this case, \code{ppar} and \code{lpar} need
-just be a list of graphical parameters, such as \code{list(pch = 21,
-col = "black", bg = "white")}. It is also possible to use parameters
-for single steps, using as graphical parameter a list of vectors of
+trajectory displayed. In this case, \code{ppar} and \code{lpar}
+need just be a list of graphical parameters, such as
+\code{list(pch = 21, col = "black", bg = "white")}. It is also
+possible to use parameters for single bursts or individual, using
+atomic vectors with the same numbers of named elements than
+bursts/id, such as \code{list(col = c(b1 = "blue", b2 =
+"red"))}. Finally, it is also possible to use parameters for
+single steps, using as graphical parameter a list of vectors of
 length equal to each trajectory. Such information can be based on
-\code{infolocs}, see Example.
+\code{infolocs}, see Examples.
 }
 \examples{
 data(puechcirc)
-##'
+
 ## Point and line parameters
 plot(puechcirc)
 plot(puechcirc, ppar = list(pch = 2, cex = .5), lpar = list(lty = 2,
     col = grey(.5)))
-##'
-## id/perani and mfrow
-plot(puechcirc, perani = FALSE)
-\dontrun{
-plot(puechcirc, perani = FALSE, mfrow = c(1, 2))}
-plot(puechcirc, id = "JE93", perani = FALSE)
-##'
+## By burst
+plot(puechcirc, ppar = list(col = c(CH930824 = "blue", CH930827 = "green",
+    JE930827 = "red"), pch = 20), lpar = list(col = c(CH930824 = "blue",
+    CH930827 = "green", JE930827 = "red")))
+
+## Parameter 'by', 'mfrow' and 'id'
+plot(puechcirc, by = "id")
+plot(puechcirc, by = "id", mfrow = c(1, 2))
+plot(puechcirc, id = "JE93")
+plot(puechcirc, by = "none", ppar = list(col = c(CH930824 = "blue",
+    CH930827 = "green", JE930827 = "red"), pch = 20), lpar = list(col =
+    c(CH930824 = "blue", CH930827 = "green", JE930827 = "red")))
+
 ## Using parameters for single steps
 info <- list(data.frame(col = sample(c("red",
          "grey"), 80, rep = TRUE), stringsAsFactors = FALSE),
@@ -89,25 +108,25 @@ info <- mapply(function(x, y) {
     return(x)
 }, info, puechcirc, SIMPLIFY = FALSE)
 infolocs(puechcirc) <- info
-##'
-## Per burst (default)
+
+## By burst (default)
 plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
     "col", simplify = TRUE)), lpar = list(col = infolocs(puechcirc,
     "col", simplify = TRUE)), na.rm = FALSE)
-##'
-## Per animal
-plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
+
+## By animal
+plot(puechcirc, by = "id", ppar = list(pch = 19, col = infolocs(puechcirc,
     "col", simplify = TRUE, perani = TRUE)), lpar = list(col = infolocs(puechcirc,
-    "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE, perani = TRUE)
-##'
+    "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE)
+
 ## Using a SpatialPixelsDataFrame
 data(puechabonsp)
-##'
-plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1])
-plot(puechcirc, perani = FALSE, spixdf = puechabonsp$map[,1],
+
+plot(puechcirc, spixdf = puechabonsp$map[,1])
+plot(puechcirc, spixdf = puechabonsp$map[,1],
     ppar = list(pch = 2, cex = .5), lpar = list(lty = 2, col = "white"),
     spixdfpar = list(col = gray((1:240)/256)))
-##'
+
 ## Using a SpatialPolygonsDataFrame
 cont <- getcontour(puechabonsp$map[,1])
 plot(puechcirc, spoldf = cont)
