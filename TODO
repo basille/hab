@@ -8,3 +8,5 @@
 
 * in trajdyn + plot.ltraj, replace 'id' by 'adehabitatLT::id' to avoid confusion with (e.g.) plyr::id
 * in trajdyn, if plist/llist, cbind ppar/lpar with x
+
+* kfold: Fails if NAs in the case, or if NAs in all random (see Michel Kohl, 2014-11-20)

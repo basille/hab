@@ -34,6 +34,7 @@ kfold <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
 
 
 ##' @rdname kfold
+##' @export
 kfold.coxph <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     reproducible = TRUE, details = FALSE)
 {

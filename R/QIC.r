@@ -24,6 +24,7 @@ QIC <- function(mod, ...)
 ##' @param details Logical, whether to provide detailed outputs
 ##' (turned automatically to \code{TRUE} when several models are
 ##' fitted).
+##' @export
 QIC.coxph <- function(mod, ..., details = FALSE)
 {
     ## If several models are provided
