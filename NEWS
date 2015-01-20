@@ -1,3 +1,11 @@
+hab 1.20
+========
+
+NEW FEATURE
+
+* `closest`: Find closest relocation from ltraj objects.
+
+
 hab 1.19.3
 ==========
 
@@ -27,7 +35,7 @@ hab 1.19
 
 NEW FEATURE
 
-* `makeStep`: Define sequences of a trajectory.
+* `makeSeq`: Define sequences of a trajectory.
 
 
 hab 1.18
