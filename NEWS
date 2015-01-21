@@ -1,3 +1,14 @@
+hab 1.20.1
+==========
+
+ENHANCEMENTS
+
+* `closest`: Minor changes in `closest` (no warnings, documentation).
+
+* `infolocs`: `by` replaces `perani` (by burst, id or none) + updated
+  examples.
+
+
 hab 1.20
 ========
 

@@ -15,7 +15,7 @@ closest(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "hour",
 \code{from}.}
 
 \item{dt}{A numeric of length 2, giving the boundaries of the
-temporal window.}
+temporal window. See Details.}
 
 \item{units}{A character string indicating the time units for
 \code{dt}.}
@@ -50,7 +50,14 @@ objects within a temporal window. If only one ltraj is provided,
 distances are computed for relocations of other individuals or
 bursts (see parameter \code{by}).
 
-Note: the function assumes that both ltraj are projected, and in
+\code{dt} allows to define the time window using \code{Inf}
+(e.g. \code{dt = c(-Inf, 0)} corresponds to all previous
+locations), as well as positive values (e.g. \code{dt = c(-3600,
+3600)} corresponds to all locations from one hour before to one
+hour after).
+}
+\note{
+The function assumes that both ltraj are projected, and in
 the same projection.
 }
 \examples{

@@ -5,15 +5,18 @@
 ##' distances are computed for relocations of other individuals or
 ##' bursts (see parameter \code{by}).
 ##'
-##' Note: the function assumes that both ltraj are projected, and in
-##' the same projection.
+##' \code{dt} allows to define the time window using \code{Inf}
+##' (e.g. \code{dt = c(-Inf, 0)} corresponds to all previous
+##' locations), as well as positive values (e.g. \code{dt = c(-3600,
+##' 3600)} corresponds to all locations from one hour before to one
+##' hour after).
 ##'
 ##' @title Closest relocation
 ##' @param from A ltraj object.
 ##' @param to A ltraj object, supposed to be different from
 ##' \code{from}.
 ##' @param dt A numeric of length 2, giving the boundaries of the
-##' temporal window.
+##' temporal window. See Details.
 ##' @param units A character string indicating the time units for
 ##' \code{dt}.
 ##' @param prefix A character string attached to the names of the
@@ -28,6 +31,8 @@
 ##' the interval.
 ##' @param protect A character string indicating other variables to
 ##' keep from \code{to} in \code{infolocs}.
+##' @note The function assumes that both ltraj are projected, and in
+##' the same projection.
 ##' @return The same ltraj as \code{from}, with additional variables
 ##' giving x and y coordinates, the date, id and burst of the closest
 ##' relocation, together with the distance to this relocation.
@@ -44,7 +49,9 @@
 ##' titi <- closest(puechcirc, dt = c(-5, -2), units = "hour", protect = "abs.angle")
 ##' tail(infolocs(titi)[[3]])
 ##' @export
-closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "hour", "day"), prefix = "to.", by = c("id", "burst"), range = c("[]", "[)", "(]", "()"), protect = NULL)
+closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
+    "min", "hour", "day"), prefix = "to.", by = c("id", "burst"),
+    range = c("[]", "[)", "(]", "()"), protect = NULL)
 {
     ## Check objects and arguments
     if (!inherits(from, "ltraj"))
@@ -59,6 +66,8 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "
     units <- match.arg(units)
     if (!(is.numeric(dt) & length(dt) == 2))
         stop("dt should be an integer of length 2")
+    if (!(dt[2] >= dt[1]))
+        stop("dt should defined an interval equal or greater than zero (i.e. dt[2] >= dt[1])")
     dt <- adehabitatLT:::.convtime(dt, units)
     by <- match.arg(by)
     range <- match.arg(range)
@@ -72,7 +81,8 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "
         ## If `loc` is a missing loc, return a 1-row df filled with
         ## NAs
         if (is.na(loc[["x"]])) {
-            tmp <- subset(to, FALSE, select = c("x", "y", "date", "id", "burst", protect))
+            tmp <- subset(to, FALSE, select = c("x", "y", "date",
+                "id", "burst", protect))
             tmp[1, ] <- NA
             tmp$distloc <- NA
             return(tmp)
@@ -93,10 +103,10 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "
         ## Logical for locs of `to` with different id/burst
         if (same)
             condid <- to[[by]] != loc[[by]]
-        else
-            condid <- TRUE
+        else condid <- TRUE
         ## Subset every loc from `to` in the temporal window
-        tmp <- subset(to, cond & condid, select = c("x", "y", "date", "id", "burst", protect))
+        tmp <- subset(to, cond & condid, select = c("x", "y",
+            "date", "id", "burst", protect))
         ## If at least one loc is selected, compute the distance
         ## between loci and all locs
         if (nrow(tmp) > 0) {
@@ -119,6 +129,7 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "
             return(tmp)
         }
     }
+
     ## Compute the closest distance for each row of `from`
     dists <- do.call(rbind, lapply(1:nrow(from), function(i)
         distLoc(loc = from[i, ], to = to, dt = dt)))
@@ -127,6 +138,6 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "
     ## Match row names
     row.names(dists) <- row.names(from)
     ## Bind and convert back to ltraj
-    from <- dl(cbind(from, dists), strict = FALSE)
+    suppressWarnings(from <- dl(cbind(from, dists), strict = FALSE))
     return(from)
 }

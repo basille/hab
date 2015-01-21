@@ -116,9 +116,11 @@ plot(puechcirc, ppar = list(pch = 19, col = infolocs(puechcirc,
     "col", simplify = TRUE)), na.rm = FALSE)
 
 ## By animal
-plot(puechcirc, by = "id", ppar = list(pch = 19, col = infolocs(puechcirc,
-    "col", simplify = TRUE, perani = TRUE)), lpar = list(col = infolocs(puechcirc,
-    "col", simplify = TRUE, perani = TRUE)), na.rm = FALSE)
+plot(puechcirc, by = "id",
+    ppar = list(pch = 19, col = infolocs(puechcirc, "col", by = "id",
+        simplify = TRUE)),
+    lpar = list(col = infolocs(puechcirc, "col", by = "id",
+        simplify = TRUE)), na.rm = FALSE)
 
 ## Using a SpatialPixelsDataFrame
 data(puechabonsp)
