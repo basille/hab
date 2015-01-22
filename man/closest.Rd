@@ -23,9 +23,10 @@ temporal window. See Details.}
 \item{prefix}{A character string attached to the names of the
 variables returned.}
 
-\item{by}{Character. Either \code{"id"} to exclude the relocations
-from the same individual in the computation of distances, or
-\code{"burst"} to exclude relocations from the same burst.}
+\item{by}{Character. Only if \code{to == NULL}, either \code{"id"}
+to exclude the relocations from the same individual in the
+computation of distances, or \code{"burst"} to exclude relocations
+from the same burst.}
 
 \item{range}{A character string indicating the range type, using a
 representation with square and round brackets: a square bracket

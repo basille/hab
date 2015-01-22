@@ -6,35 +6,38 @@
 \alias{summarySeq}
 \title{Define sequences of a trajectory}
 \usage{
-makeSeq(date, id = NULL, gap = 1, units = c("hours", "mins", "secs",
-  "days", "weeks"))
+makeSeq(x, gap = 1, units = c("hours", "mins", "secs", "days", "weeks"),
+  na.omit = TRUE, name = "seq")
 
-summarySeq(seq, id = NULL)
+summarySeq(x, name = "seq")
 
 \method{print}{summarySeq}(x, ...)
 }
 \arguments{
-\item{date}{A \code{POSIXt} object, chronologically ordered (by
-individal if \code{id} is provided).}
-
-\item{id}{A vector giving the id of each step (must be the same length
-as \code{date}). If not provided, the function assumes all steps come
-from a single individual.}
+\item{x}{A ltraj object.}
 
 \item{gap}{The maximum time interval between two successives steps
 before starting a new sequence.}
 
 \item{units}{The unit of \code{gap} (default is \code{hour}).}
 
-\item{seq}{An vector giving a sequence in a trajectory, as given by
-\code{makeSeq}, or as a series of integers.}
+\item{na.omit}{Logical, whether to remove missing locations to
+form the sequence (default).}
+
+\item{name}{A character string indicating the column name of the
+sequence to be stored in infolocs.}
+
+\item{x}{A ltraj object.}
+
+\item{name}{A character string indicating the column name of the
+sequence computed by \code{makeSeq}.}
 
 \item{x}{An object of class \code{summarySeq}.}
 }
 \value{
-For \code{makeSeq}, a numeric vector, with the sequence number
-for each \code{date}, in the form of an integer series for each
-individual.
+For \code{makeSeq}, a ltraj with a new variable
+\code{name} in infolocs, with the sequence number for each
+location, in the form of an integer series for each burst.
 
 For \code{summarySeq}, an object of class \code{summarySeq}.
 }
@@ -43,26 +46,14 @@ Define sequences of a trajectory based on the chronology of steps,
 allowing for gaps.
 }
 \examples{
-## Dummy data:
-(steps <- data.frame(date = Sys.time() + c(1:10, 12, 14, 20:25) *
-    3600, id = c(rep("toto", 4), rep("tata", 9), rep("toto",
-    5))))
+data(puechcirc)
 
-## 1-hour gap, all steps considered from a single individual:
-makeSeq(steps$date)
-## 2-hour gap, all steps considered from a single individual:
-makeSeq(steps$date, gap = 2)
-## 1-hour gap, individual id considered:
-steps$seq <- makeSeq(steps$date, steps$id)
-steps
+puechcirc <- makeSeq(puechcirc, gap = 15, units = "mins", name = "seq15")
+infolocs(puechcirc, which = "seq15", simplify = TRUE)
+summarySeq(puechcirc, "seq15")
 
-## Note that `seq` uses a series starting from 1 for each individual. Uses
-## something like this to have unique seq IDs among individuals:
-steps$seqid <- paste(steps$id, steps$seq, sep = "-")
-steps
-
-## Summary of the sequence, individual id considered:
-summarySeq(steps$seq, steps$id)
+puechcirc <- makeSeq(puechcirc, gap = 25, units = "mins", name = "seq25")
+summarySeq(puechcirc, "seq25")
 }
 \author{
 Mathieu Basille \email{basille@ase-research.org}
