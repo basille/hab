@@ -19,7 +19,9 @@
 ##' temporal window. See Details.
 ##' @param units A character string indicating the time units for
 ##' \code{dt}.
-##' @param ref
+##' @param ref A character string indicating whether the distance
+##' should be computed from the start (\code{ref = start}), or the end
+##' (\code{ref = "end"}) of the step.
 ##' @param prefix A character string attached to the names of the
 ##' variables returned.
 ##' @param by Character. Only if \code{to == NULL}, either \code{"id"}
@@ -31,9 +33,6 @@
 ##' means "inclusive" and a round bracket means "exclusive". For
 ##' example, \code{"[)"} includes the beginning, but not the end of
 ##' the interval.
-##' @param ref A character string indicating whether the distance
-##' should be computed from the start (\code{ref = start}), or the end
-##' (\code{ref = "end"}) of the step.
 ##' @param protect A character string indicating other variables to
 ##' keep from \code{to} in \code{infolocs}.
 ##' @note The function assumes that both ltraj are projected, and in
@@ -95,7 +94,7 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
                 "id", "burst", protect))
             tmp[1, ] <- NA
             tmp$distloc <- NA
-            names(tmp)[ncol(tmp)] <- paste0("d", ref)
+            ## names(tmp)[ncol(tmp)] <- paste0("d", ref)
             return(tmp)
         }
         ## Logical for locs of `to` in the temporal window
@@ -141,7 +140,7 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
             tmp[1, ] <- NA
             tmp$distloc <- NA
         }
-        names(tmp)[ncol(tmp)] <- paste0("d", ref)
+        ## names(tmp)[ncol(tmp)] <- paste0("d", ref)
         return(tmp)
     }
 
