@@ -17,7 +17,9 @@ summarySeq(x, name = "seq")
 \item{x}{A ltraj object.}
 
 \item{gap}{The maximum time interval between two successives steps
-before starting a new sequence.}
+before starting a new sequence (note that the time interval needs
+to be strictly greater than \code{gap} for a new sequence to
+start).}
 
 \item{units}{The unit of \code{gap} (default is \code{hour}).}
 

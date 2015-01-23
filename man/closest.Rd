@@ -5,8 +5,8 @@
 \title{Closest relocation}
 \usage{
 closest(from, to = NULL, dt = c(-3600, 0), units = c("sec", "min", "hour",
-  "day"), prefix = "to.", by = c("id", "burst"), range = c("[]", "[)",
-  "(]", "()"), protect = NULL)
+  "day"), ref = c("start", "end"), prefix = "to.", by = c("id", "burst"),
+  range = c("[]", "[)", "(]", "()"), protect = NULL)
 }
 \arguments{
 \item{from}{A ltraj object.}
@@ -19,6 +19,8 @@ temporal window. See Details.}
 
 \item{units}{A character string indicating the time units for
 \code{dt}.}
+
+\item{ref}{}
 
 \item{prefix}{A character string attached to the names of the
 variables returned.}
@@ -36,6 +38,10 @@ the interval.}
 
 \item{protect}{A character string indicating other variables to
 keep from \code{to} in \code{infolocs}.}
+
+\item{ref}{A character string indicating whether the distance
+should be computed from the start (\code{ref = start}), or the end
+(\code{ref = "end"}) of the step.}
 }
 \value{
 The same ltraj as \code{from}, with additional variables
@@ -66,6 +72,9 @@ data(puechcirc)
 
 toto <- closest(puechcirc)
 tail(infolocs(toto)[[3]])
+
+toto2 <- closest(puechcirc, ref = "end")
+tail(infolocs(toto2)[[3]])
 
 tata <- closest(puechcirc, dt = c(-3, 2), units = "hour", by = "burst")
 tail(infolocs(tata)[[3]])

@@ -6,7 +6,9 @@
 ##' @title Define sequences of a trajectory
 ##' @param x A ltraj object.
 ##' @param gap The maximum time interval between two successives steps
-##' before starting a new sequence.
+##' before starting a new sequence (note that the time interval needs
+##' to be strictly greater than \code{gap} for a new sequence to
+##' start).
 ##' @param units The unit of \code{gap} (default is \code{hour}).
 ##' @param na.omit Logical, whether to remove missing locations to
 ##' form the sequence (default).

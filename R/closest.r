@@ -19,6 +19,7 @@
 ##' temporal window. See Details.
 ##' @param units A character string indicating the time units for
 ##' \code{dt}.
+##' @param ref
 ##' @param prefix A character string attached to the names of the
 ##' variables returned.
 ##' @param by Character. Only if \code{to == NULL}, either \code{"id"}
@@ -30,6 +31,9 @@
 ##' means "inclusive" and a round bracket means "exclusive". For
 ##' example, \code{"[)"} includes the beginning, but not the end of
 ##' the interval.
+##' @param ref A character string indicating whether the distance
+##' should be computed from the start (\code{ref = start}), or the end
+##' (\code{ref = "end"}) of the step.
 ##' @param protect A character string indicating other variables to
 ##' keep from \code{to} in \code{infolocs}.
 ##' @note The function assumes that both ltraj are projected, and in
@@ -44,6 +48,9 @@
 ##' toto <- closest(puechcirc)
 ##' tail(infolocs(toto)[[3]])
 ##'
+##' toto2 <- closest(puechcirc, ref = "end")
+##' tail(infolocs(toto2)[[3]])
+##'
 ##' tata <- closest(puechcirc, dt = c(-3, 2), units = "hour", by = "burst")
 ##' tail(infolocs(tata)[[3]])
 ##'
@@ -51,8 +58,9 @@
 ##' tail(infolocs(titi)[[3]])
 ##' @export
 closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
-    "min", "hour", "day"), prefix = "to.", by = c("id", "burst"),
-    range = c("[]", "[)", "(]", "()"), protect = NULL)
+    "min", "hour", "day"), ref = c("start", "end"), prefix = "to.",
+    by = c("id", "burst"), range = c("[]", "[)", "(]", "()"),
+    protect = NULL)
 {
     ## Check objects and arguments
     if (!inherits(from, "ltraj"))
@@ -65,6 +73,7 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
     if (!inherits(to, "ltraj"))
         stop("to should be of class ltraj")
     units <- match.arg(units)
+    ref <- match.arg(ref)
     if (!(is.numeric(dt) & length(dt) == 2))
         stop("dt should be an integer of length 2")
     if (!(dt[2] >= dt[1]))
@@ -78,7 +87,7 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
     to <- ld(to, strict = FALSE)
 
     ## Function for one location
-    distLoc <- function(loc, to, dt) {
+    distLoc <- function(loc, to, dt, ref) {
         ## If `loc` is a missing loc, return a 1-row df filled with
         ## NAs
         if (is.na(loc[["x"]])) {
@@ -86,6 +95,7 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
                 "id", "burst", protect))
             tmp[1, ] <- NA
             tmp$distloc <- NA
+            names(tmp)[ncol(tmp)] <- paste0("d", ref)
             return(tmp)
         }
         ## Logical for locs of `to` in the temporal window
@@ -111,29 +121,33 @@ closest <- function(from, to = NULL, dt = c(-3600, 0), units = c("sec",
         ## If at least one loc is selected, compute the distance
         ## between loci and all locs
         if (nrow(tmp) > 0) {
-            tmp$distloc <- sqrt((loc[["x"]] - tmp[["x"]])^2 +
-                                (loc[["y"]] - tmp[["y"]])^2)
+            if (ref == "start")
+                tmp$distloc <- sqrt((loc[["x"]] - tmp[["x"]])^2 +
+                                    (loc[["y"]] - tmp[["y"]])^2)
+            else tmp$distloc <-
+                sqrt((loc[["x"]] + loc[["dx"]] - tmp[["x"]])^2 +
+                     (loc[["y"]] + loc[["dy"]] - tmp[["y"]])^2)
             ## If all distances are NAs, return a 1-row df filled with
             ## NAs
             if (all(is.na(tmp$distloc))) {
                 tmp <- tmp[1, ]
                 tmp[1, ] <- NA
-                return(tmp)
             }
             ## Otherwise return the row with minimum distance
-            else return(tmp[which.min(tmp$distloc), ])
+            else tmp <- tmp[which.min(tmp$distloc), ]
         }
         ## Otherwise return a 1-row df filled with NAs
         else {
             tmp[1, ] <- NA
             tmp$distloc <- NA
-            return(tmp)
         }
+        names(tmp)[ncol(tmp)] <- paste0("d", ref)
+        return(tmp)
     }
 
     ## Compute the closest distance for each row of `from`
     dists <- do.call(rbind, lapply(1:nrow(from), function(i)
-        distLoc(loc = from[i, ], to = to, dt = dt)))
+        distLoc(loc = from[i, ], to = to, dt = dt, ref = ref)))
     ## Add prefix to colum names
     names(dists) <- paste0(prefix, names(dists))
     ## Match row names

@@ -1,3 +1,12 @@
+hab 1.20.3
+==========
+
+ENHANCEMENT
+
+* `closest`: Argument `ref` to compute distances from the start or the
+  end of the step.
+
+
 hab 1.20.2
 ==========
 
