@@ -42,7 +42,7 @@ kfold.coxph <- function(mod, k = 5, nrepet = 100, jitter = FALSE,
     if (!inherits(mod, "coxph"))
         stop("Model of class 'coxph' expected.")
     ## Load survival
-    require(survival)
+    ## require(survival)
     ## Try to retrieve the data
     dt <- try(model.frame(mod), silent = TRUE)
     ## If it failed, stop and give a solution

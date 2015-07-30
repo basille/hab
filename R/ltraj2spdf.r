@@ -120,12 +120,12 @@ ltraj2sldf <- function (ltr, by = c("burst", "id", "step"), strict = TRUE,
 ##' infolocs(puechcirc) <- info
 ##'
 ##' ## Conversion to SPDF:
-##' summary(adehabitatLT:::ltraj2spdf(puechcirc))
+##' summary(adehabitatLT::ltraj2spdf(puechcirc))
 ##' summary(ltraj2spdf(puechcirc, strict = FALSE))
 ##' summary(ltraj2spdf(puechcirc, strict = FALSE, proj4string = CRS("+init=epsg:27572")))
 ##'
 ##' ## Conversion to SLDF:
-##' summary(adehabitatLT:::ltraj2sldf(puechcirc, byid = TRUE))
+##' summary(adehabitatLT::ltraj2sldf(puechcirc, byid = TRUE))
 ##' summary(ltraj2sldf(puechcirc, by = "id"))
 ##' summary(ltraj2sldf(puechcirc, proj4string = CRS("+init=epsg:27572")))
 ##' summary(ltraj2sldf(puechcirc, strict = FALSE, by = "step",

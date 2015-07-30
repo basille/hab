@@ -33,18 +33,18 @@
 ##' @examples
 ##' data(puechcirc)
 ##'
-##' adehabitatLT:::plotltr(puechcirc, "cos(rel.angle)")
+##' adehabitatLT::plotltr(puechcirc, "cos(rel.angle)")
 ##' plotltr(puechcirc, "cos(rel.angle)")
 ##' \dontrun{
 ##' plotltr(puechcirc, "cos(rel.angle)", ppar = list(pch = 2, cex = 2),
 ##'     lpar = list(lty = 2, lwd = 2), mfrow = c(2, 1))}
 ##'
-##' adehabitatLT:::plotltr(puechcirc, "dist")
+##' adehabitatLT::plotltr(puechcirc, "dist")
 ##' plotltr(puechcirc, "dist")
 ##' plotltr(puechcirc, "dist", ppar = list(pch = 3, col = "blue"),
 ##'     lpar = list(lty = 3, col = "red"), perani = TRUE)
 ##'
-##' adehabitatLT:::plotltr(puechcirc, "dx")
+##' adehabitatLT::plotltr(puechcirc, "dx")
 ##' plotltr(puechcirc, "dx")
 ##' plotltr(puechcirc, "dx", ppar = list(col = rep(1:8, each = 6)),
 ##'     addlines = FALSE)

@@ -148,9 +148,7 @@ trajdyn <- function (x, burst = attr(x[[1]], "burst"), na.rm = TRUE, hscale = 1,
     if (na.rm) {
         ## Remove NAs from individual point/line parameters
         nas <- lapply(x, function(i) !is.na(i$x))
-        ## Note the use of 'adehabitatLT::id' to avoid conflicts with
-        ## other packages (e.g. with 'plyr::id')
-        names(nas) <- adehabitatLT::id(x)
+        names(nas) <- id(x)
         ## Only if the list of parameter is of length > 0
         if (length(ppar) > 0 & any(plist))
             for (k in (1:length(ppar))[plist])

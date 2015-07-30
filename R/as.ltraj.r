@@ -16,7 +16,7 @@
 ##' df <- as.data.frame(locs)
 ##' id <- df[,1]
 ##' da <- as.POSIXct(strptime(as.character(df$Date), "%y%m%d"))
-##' ltr1 <- adehabitatLT:::as.ltraj(xy, da, id = id)
+##' ltr1 <- adehabitatLT::as.ltraj(xy, da, id = id)
 ##' ltr2 <- as.ltraj(xy, da, id = id)
 ##' all.equal(ltr1, ltr2)
 as.ltraj <- function (xy, date = NULL, id, burst = id, typeII = TRUE, slsp = c("remove",

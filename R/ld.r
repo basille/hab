@@ -123,7 +123,7 @@ dl <- function(x, strict = TRUE) {
 ##' puechcirc ## class ltraj
 ##'
 ##' ## ld
-##' df1 <- adehabitatLT:::ld(puechcirc)
+##' df1 <- adehabitatLT::ld(puechcirc)
 ##' df2 <- ld(puechcirc, strict = FALSE)
 ##' all.equal(df1, df2)
 ##' ## Note a difference in row names:
@@ -131,7 +131,7 @@ dl <- function(x, strict = TRUE) {
 ##' attr(df2, "row.names")
 ##'
 ##' ## dl
-##' all.equal(dl(df2), adehabitatLT:::dl(df2))
+##' all.equal(dl(df2), adehabitatLT::dl(df2))
 ##' dl(df2, strict = FALSE)
 ##' ## Comparison regarding 'strict'
 ##' all.equal(dl(df2), dl(df2, strict = FALSE))
@@ -145,9 +145,7 @@ ld <- function(ltraj, strict = TRUE)
         stop("ltraj should be of class ltraj")
     ## 'strict = TRUE' corresponds to the regular 'ld' function
     if (strict) {
-        ## Note the use of 'adehabitatLT::id' to avoid conflicts with
-        ## other packages (e.g. with 'plyr::id')
-        iidd <- rep(adehabitatLT::id(ltraj), sapply(ltraj, nrow))
+        iidd <- rep(id(ltraj), sapply(ltraj, nrow))
         bur <- rep(burst(ltraj), sapply(ltraj, nrow))
         inf <- infolocs(ltraj)
         tr <- do.call("rbind", ltraj)
@@ -170,10 +168,7 @@ ld <- function(ltraj, strict = TRUE)
             R2n = unlist(lapply(ltraj, function(x) x$R2n)),
             abs.angle = unlist(lapply(ltraj, function(x) x$abs.angle)),
             rel.angle = unlist(lapply(ltraj, function(x) x$rel.angle)),
-            ## Note the use of 'adehabitatLT::' to ensure the use of
-            ## the 'id' function from this package, and avoid
-            ## conflicts (e.g. with 'plyr::id')
-            id = rep(adehabitatLT::id(ltraj), sapply(ltraj, nrow)),
+            id = rep(id(ltraj), sapply(ltraj, nrow)),
             burst = rep(burst(ltraj), sapply(ltraj, nrow)))
         class(df$date) <-  c("POSIXct", "POSIXt")
         attr(df$date, "tzone") <- attr(ltraj[[1]]$date, "tzone")

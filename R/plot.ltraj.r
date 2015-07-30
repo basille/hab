@@ -110,19 +110,20 @@
 ##'     spixdfpar = list(col = gray((1:240)/256)))
 ##'
 ##' ## Using a SpatialPolygonsDataFrame
-##' cont <- getcontour(puechabonsp$map[,1])
+##' cont <- adehabitatMA::getcontour(puechabonsp$map[,1])
 ##' plot(puechcirc, spoldf = cont)
 ##' plot(puechcirc, spoldf = cont, ppar = list(pch = 2, cex = .5),
 ##'     lpar = list(lty = 2, col = grey(.5)), spoldfpar = list(col = "cornsilk",
 ##'         border = grey(.5)))
-plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
-    adehabitatLT::burst(x), by = c("burst", "id", "none"), na.rm = TRUE,
-    spixdf = NULL, spoldf = NULL, spotdf = NULL, xlim = NULL, ylim = NULL,
-    center = FALSE, addpoints = TRUE, addlines = TRUE, box = FALSE,
-    final = TRUE, mfrow, ppar = list(pch = 21, col = "black", bg = "white"),
+plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)),
+    burst = adehabitatLT::burst(x), by = c("burst", "id", "none"),
+    na.rm = TRUE, spixdf = NULL, spoldf = NULL, spotdf = NULL,
+    xlim = NULL, ylim = NULL, center = FALSE, addpoints = TRUE,
+    addlines = TRUE, box = FALSE, final = TRUE, mfrow,
+    ppar = list(pch = 21, col = "black", bg = "white"),
     lpar = list(), spixdfpar = list(col = gray((240:1)/256)),
-    spoldfpar = list(col = "green"), spotdfpar = list(pch = 3,
-        col = "darkgreen"), ...)
+    spoldfpar = list(col = "green"),
+    spotdfpar = list(pch = 3, col = "darkgreen"), ...)
 {
     ## Match the 'by' argument
     by <- match.arg(by)
@@ -217,10 +218,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
     if (na.rm) {
         ## Remove NAs from individual point/line parameters
         nas <- lapply(x, function(i) !is.na(i$x))
-        ## Note the use of 'adehabitatLT::' to ensure the use of the 'id'
-        ## function from this package, and avoid conflicts (e.g. with
-        ## 'plyr::id')
-        names(nas) <- adehabitatLT::id(x)
+        names(nas) <- id(x)
         ## Only if the list of parameter is of length > 0
         if (length(ppar) > 0 & any(plist))
             for (k in (1:length(ppar))[plist])
@@ -283,10 +281,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
     ## End of modification
     if (is.null(xlim)) {
         if (by == "id") {
-            ## Note the use of 'adehabitatLT::' to ensure the use of the
-            ## 'id' function from this package, and avoid conflicts
-            ## (e.g. with 'plyr::id')
-            idtt <- unique(adehabitatLT::id(x))
+            idtt <- unique(id(x))
             oo <- lapply(idtt, function(i) unlist(lapply(x[id = i],
                 function(j) j$x)))
             ## If center, 'xlim' centered around the range of x
@@ -346,10 +341,7 @@ plot.ltraj <- function(x, id = unique(adehabitatLT::id(x)), burst =
     }
     if (is.null(ylim)) {
         if (by == "id") {
-            ## Note the use of 'adehabitatLT::' to ensure the use of the
-            ## 'id' function from this package, and avoid conflicts
-            ## (e.g. with 'plyr::id')
-            idtt <- unique(adehabitatLT::id(x))
+            idtt <- unique(id(x))
             oo <- lapply(idtt, function(i) unlist(lapply(x[id = i],
                 function(j) j$y)))
             ## If center, 'ylim' centered around the range of y

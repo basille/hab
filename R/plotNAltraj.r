@@ -28,7 +28,7 @@
 ##' @export
 ##' @examples
 ##' data(puechcirc)
-##' adehabitatLT:::plotNAltraj(puechcirc)
+##' adehabitatLT::plotNAltraj(puechcirc)
 ##' plotNAltraj(puechcirc, perani = TRUE, addlines = FALSE, mfrow = c(1,
 ##'     2), ppar = list(pch = 15, cex = 0.5))
 plotNAltraj <- function(x, perani = FALSE, addlines = TRUE, mfrow,
