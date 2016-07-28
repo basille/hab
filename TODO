@@ -1,12 +1,156 @@
+* rdSteps:
+
+- Fix bug for bursts with no relative angles
+- Fix bug for steps with dist == 0
+
+See email for Elisabeth White (2016-07-28 14:50: "Re: Raster in Database question") and data+script in 'LizWhite'.
+
+
+* closest: see package 'nabor'
+
+To get distance from each voter to closest polling place, the syntax was:
+
+library(nabor)
+knn.results = knn(data=coordinates(polling.places),
+query=coordinates(voters), k=1)
+
+
+
+
 * interloc-functions.R
+
+
+
+
 
 * kfoldRSF
 
-* rdSteps
+  -- RSF : Integrate kfold Nico
+  -- Fails if NAs in the case, or if NAs in all random (see Michel Kohl, 2014-11-20)
+
+
+
+
 
 * scatter.enfa
 
-* in trajdyn + plot.ltraj, replace 'id' by 'adehabitatLT::id' to avoid confusion with (e.g.) plyr::id
+
+
+
+
 * in trajdyn, if plist/llist, cbind ppar/lpar with x
 
-* kfold: Fails if NAs in the case, or if NAs in all random (see Michel Kohl, 2014-11-20)
+
+
+
+
+* circular density: http://freakonometrics.hypotheses.org/20403
+(see 'basr'?)
+
+
+
+
+* print.ltraj with time zones
+
+print.ltraj <- function(x, ...) {
+    if (!inherits(x, "ltraj"))
+        stop("x should be of class \"ltraj\"")
+    pr <- summary(x)
+    cat("\n*********** List of class ltraj ***********\n\n")
+    if (attr(x, "typeII")) {
+        cat("Type of the traject: Type II (time recorded)\n")
+        ## Beginning of modification
+        tzone <- attr(x[[1]]$date, "tzone")
+        if (is.null(tzone) | identical(tzone, ""))
+            cat("Time zone unspecified; dates printed in user time zone\n")
+        else
+            cat(paste0("Time zone: ", tzone, "\n"))
+        ## End of modification
+        if (attr(x, "regular")) {
+            cat(paste("Regular traject. Time lag between two locs:",
+                mean(x[[1]]$dt, na.rm = TRUE), "seconds\n"))
+        }
+        else {
+            cat(paste("Irregular traject. Variable time lag between two locs\n"))
+        }
+    }
+    if (!attr(x, "typeII")) {
+        cat("Type of the traject: Type I (time not recorded)\n")
+    }
+    cat("\nCharacteristics of the bursts:\n")
+    print(pr)
+    cat("\n")
+    if (!is.null(infolocs(x))) {
+        cat("\n infolocs provided. The following variables are available:\n")
+        print(names(infolocs(x)[[1]]))
+    }
+}
+
+
+
+
+
+
+* count.points: bug with SPDF and only one column
+(see Cyril Milleret 2015-08-30 Re: aide erreur fonction Kselect)
+
+count.points <- function (xy, w)
+{
+    if (is(w, "SpatialGrid"))
+        fullgrid(w) = FALSE
+    if (!inherits(w, "SpatialPixels"))
+        stop("w should inherit the class SpatialPixels")
+    if (!inherits(xy, "SpatialPoints"))
+        stop("xy should inherit the class SpatialPoints")
+    pfsx <- proj4string(w)
+    pfsxy <- proj4string(xy)
+    if (!identical(pfsx, pfsxy))
+        stop("different proj4string in w and xy")
+    gr <- gridparameters(w)
+    if (nrow(gr) > 2)
+        stop("w should be defined in two dimensions")
+    if ((gr[1, 2] - gr[2, 2]) > get(".adeoptions", envir =
+.adehabitatMAEnv)$epsilon)
+        stop("the cellsize should be the same in x and y directions")
+    if (ncol(coordinates(xy)) > 2)
+        stop("xy should be defined in two dimensions")
+    meth <- "one"
+    if (inherits(xy, "SpatialPointsDataFrame")) {
+        if (ncol(xy) == 1) {
+            meth = "sev"
+        }
+        else {
+            meth = "one"
+            warning("several columns in the SpatialPointsDataFrame, no id
+considered")
+        }
+    }
+    if (meth == "one") {
+        ov <- over(xy, geometry(w))
+        oo <- table(ov)
+        repo <- rep(0, length(w[[1]]))
+        repo[as.numeric(names(oo))] <- oo
+        repo <- data.frame(x = repo)
+        coordinates(repo) <- coordinates(w)
+        gridded(repo) <- TRUE
+        if (!is.na(pfsx))
+            proj4string(repo) <- CRS(pfsx)
+        return(repo)
+    }
+    else {
+        id <- factor(xy[[1]])
+        xy2 <- as.data.frame(coordinates(xy))
+        lixy <- split(xy2, id)
+        cp <- lapply(lixy, function(x) {
+            count.points(SpatialPoints(x, proj4string =
+CRS(proj4string(xy))), w)
+        })
+        cp <- do.call("data.frame", lapply(cp, function(x) x[[1]]))
+        coordinates(cp) <- coordinates(w)
+        gridded(cp) <- TRUE
+        if (!is.na(pfsx))
+            proj4string(cp) <- CRS(pfsx)
+        return(cp)
+    }
+}
+
