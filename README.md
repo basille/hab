@@ -1,38 +1,20 @@
 hab
 ===
 
-This is the development area for the package `hab`, a set of functions
-related to habitat selection and movement analyses. Also includes a few
-patches for functions from the adehabitatXY package family.
+This is the development area for the package `hab`, a set of functions related
+to habitat selection and movement analyses. Also includes a few patches for
+functions from the adehabitat package family (notably
+[adehabitatLT](https://cran.r-project.org/package=adehabitatLT) and
+[adehabitatHR](https://cran.r-project.org/package=adehabitatHR)).
 
-See [the home page for the released versions](http://ase-research.org/basille/hab/).
+## Installation
 
+You can use the [`remotes`](https://remotes.r-lib.org/) package to install the
+latest version:
 
-## Installation of the development version
-
-You need to use the package
-[`devtools`](http://cran.r-project.org/web/packages/devtools/index.html)
-from Hadley Wickham:
-
-	library(devtools)
-	install_github("basille/hab")
-
-
-## Installation of the released versions
-
-Binaries for Windows are (sometimes) maintained for the
-latest R release, and can be installed with the command:
-
-    install.packages("hab", repos = "http://ase-research.org/R/")
-
-If it's not the case, and with other operating systems (such as GNU/Linux or OS X), you can compile the source package with the command:
-
-	install.packages("hab", repos = "http://ase-research.org/R/", type = "source")
-
-The upgrade process (e.g. using `update.packages()`) is not operative on
-packages from this repository. Simply reinstall the package with one of the
-commands above to upgrade it when necessary.
-
+```{r}
+remotes::install_github("basille/hab")
+```
 
 ## Getting started
 

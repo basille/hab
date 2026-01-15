@@ -1,0 +1,223 @@
+* check kselect overlap (Cyril Milleret 2016/02)
+
+
+* acf.test expect factors for id:
+
+acf.test <- function (residuals, id, type = c("correlation", "covariance",
+    "partial"), ci = 0.95)
+{
+    type <- match.arg(type)
+    acfk <- lapply(unique(factor(id)), function(x) acf(residuals[id ==
+        x], type = type, plot = FALSE))
+    threshold <- unlist(lapply(acfk, function(x) qnorm((1 + ci)/2)/sqrt(x$n.used)))
+    lag <- unlist(lapply(1:length(acfk), function(i) which(acfk[[i]]$acf <
+        threshold[i])[1]))
+    return(list(acfk = acfk, threshold = threshold, lag = lag))
+}
+
+
+
+* rdSteps:
+
+- Speed up function: bottleneck with rbind (use matrices, or data.table or dplyr)
+
+- Fix bug for bursts with no relative angles
+- Fix bug for steps with dist == 0
+
+See email for Elisabeth White (2016-07-28 14:50: "Re: Raster in Database question") and data+script in 'LizWhite'.
+
+
+* closest: see package 'nabor'
+
+To get distance from each voter to closest polling place, the syntax was:
+
+library(nabor)
+knn.results = knn(data=coordinates(polling.places),
+query=coordinates(voters), k=1)
+
+
+
+
+* interloc-functions.R
+
+
+
+
+* in trajdyn + plot.ltraj, replace 'id' by 'adehabitatLT::id' to avoid confusion with (e.g.) plyr::id
+* in trajdyn, if plist/llist, cbind ppar/lpar with x
+
+
+
+* kfoldRSF
+
+  -- bug if step id is repeated (for instance per animal) (see Justine Smith, 2019-11-07)
+
+  -- RSF : Integrate kfold Nico
+  -- Fails if NAs in the case, or if NAs in all random (see Michel Kohl, 2014-11-20)
+
+
+
+
+
+* scatter.enfa
+
+
+
+
+
+* in trajdyn, if plist/llist, cbind ppar/lpar with x
+
+
+
+
+
+* circular density: http://freakonometrics.hypotheses.org/20403
+(see 'basr'?)
+
+
+
+
+* print.ltraj with time zones
+
+print.ltraj <- function(x, ...) {
+    if (!inherits(x, "ltraj"))
+        stop("x should be of class \"ltraj\"")
+    pr <- summary(x)
+    cat("\n*********** List of class ltraj ***********\n\n")
+    if (attr(x, "typeII")) {
+        cat("Type of the traject: Type II (time recorded)\n")
+        ## Beginning of modification
+        tzone <- attr(x[[1]]$date, "tzone")
+        if (is.null(tzone) | identical(tzone, ""))
+            cat("Time zone unspecified; dates printed in user time zone\n")
+        else
+            cat(paste0("Time zone: ", tzone, "\n"))
+        ## End of modification
+        if (attr(x, "regular")) {
+            cat(paste("Regular traject. Time lag between two locs:",
+                mean(x[[1]]$dt, na.rm = TRUE), "seconds\n"))
+        }
+        else {
+            cat(paste("Irregular traject. Variable time lag between two locs\n"))
+        }
+    }
+    if (!attr(x, "typeII")) {
+        cat("Type of the traject: Type I (time not recorded)\n")
+    }
+    cat("\nCharacteristics of the bursts:\n")
+    print(pr)
+    cat("\n")
+    if (!is.null(infolocs(x))) {
+        cat("\n infolocs provided. The following variables are available:\n")
+        print(names(infolocs(x)[[1]]))
+    }
+}
+
+
+
+
+
+
+* count.points: bug with SPDF and only one column
+(see Cyril Milleret 2015-08-30 Re: aide erreur fonction Kselect)
+
+count.points <- function (xy, w)
+{
+    if (is(w, "SpatialGrid"))
+        fullgrid(w) = FALSE
+    if (!inherits(w, "SpatialPixels"))
+        stop("w should inherit the class SpatialPixels")
+    if (!inherits(xy, "SpatialPoints"))
+        stop("xy should inherit the class SpatialPoints")
+    pfsx <- proj4string(w)
+    pfsxy <- proj4string(xy)
+    if (!identical(pfsx, pfsxy))
+        stop("different proj4string in w and xy")
+    gr <- gridparameters(w)
+    if (nrow(gr) > 2)
+        stop("w should be defined in two dimensions")
+    if ((gr[1, 2] - gr[2, 2]) > get(".adeoptions", envir =
+.adehabitatMAEnv)$epsilon)
+        stop("the cellsize should be the same in x and y directions")
+    if (ncol(coordinates(xy)) > 2)
+        stop("xy should be defined in two dimensions")
+    meth <- "one"
+    if (inherits(xy, "SpatialPointsDataFrame")) {
+        if (ncol(xy) == 1) {
+            meth = "sev"
+        }
+        else {
+            meth = "one"
+            warning("several columns in the SpatialPointsDataFrame, no id
+considered")
+        }
+    }
+    if (meth == "one") {
+        ov <- over(xy, geometry(w))
+        oo <- table(ov)
+        repo <- rep(0, length(w[[1]]))
+        repo[as.numeric(names(oo))] <- oo
+        repo <- data.frame(x = repo)
+        coordinates(repo) <- coordinates(w)
+        gridded(repo) <- TRUE
+        if (!is.na(pfsx))
+            proj4string(repo) <- CRS(pfsx)
+        return(repo)
+    }
+    else {
+        id <- factor(xy[[1]])
+        xy2 <- as.data.frame(coordinates(xy))
+        lixy <- split(xy2, id)
+        cp <- lapply(lixy, function(x) {
+            count.points(SpatialPoints(x, proj4string =
+CRS(proj4string(xy))), w)
+        })
+        cp <- do.call("data.frame", lapply(cp, function(x) x[[1]]))
+        coordinates(cp) <- coordinates(w)
+        gridded(cp) <- TRUE
+        if (!is.na(pfsx))
+            proj4string(cp) <- CRS(pfsx)
+        return(cp)
+    }
+}
+
+
+
+* subsample(): Bug with single-column data frames
+https://github.com/ClementCalenge/adehabitatLT/issues/2
+
+subsample.fixed <- function (ltraj, dt, nlo = 1, units = c("sec", "min", "hour", 
+                                              "day"), ...) 
+{
+  if (!inherits(ltraj, "ltraj")) 
+    stop("ltraj should be of class \"ltraj\"")
+  if ((!is.regular(ltraj)) & (attr(ltraj, "typeII"))) 
+    stop("ltraj should be of type I or type II regular")
+  p4s <- adehabitatLT:::.checkp4(ltraj)
+  if (length(nlo) == 1) 
+    nlo <- rep(nlo, length(ltraj))
+  units <- match.arg(units)
+  dt <- adehabitatLT:::.convtime(dt, units)
+  dtb <- ltraj[[1]]$dt[1]
+  if (dt%%dtb != 0) 
+    stop("dt is not a multiple of the previous time lag")
+  la <- dt/dtb
+  res <- lapply(1:length(ltraj), function(i) {
+    x <- ltraj[[i]]
+    infol <- attr(x, "infolocs")
+    vec <- rep(1:la, length = nrow(x))
+    x <- x[vec == nlo[i], ]
+    if (!is.null(infol)) {
+      ## Here:
+      infol <- infol[vec == nlo[i], , drop = FALSE]
+      attr(x, "infolocs") <- infol
+    }
+    return(x)
+  })
+  class(res) <- c("ltraj", "list")
+  attr(res, "typeII") <- attr(ltraj, "typeII")
+  attr(res, "regular") <- is.regular(res)
+  attr(res, "proj4string") <- p4s
+  res <- rec(res, ...)
+  return(res)
+}
